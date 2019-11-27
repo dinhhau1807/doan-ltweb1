@@ -111,3 +111,41 @@ function activateUser($code)
   }
   return false;
 }
+
+function sendCodeResetPassword($user)
+{
+  global $db, $BASE_URL;
+  $code = generateRandomString(16);
+
+  $stmt = $db->prepare("UPDATE users SET code=? WHERE id=?");
+  $stmt->execute(array($code, $user['id']));
+
+  $bodyContent = "Mã reset mật khẩu của bạn là <strong>$code</strong><br />"
+    . "Hoặc click vào <a href='$BASE_URL/reset-password.php?code=$code' target='_blank'>ĐÂY</a> để reset mật khẩu!";
+  sendEmail($user['email'], $user['displayName'], 'Reset mật khẩu', $bodyContent);
+}
+
+function checkValidCodeResetPassword($code)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM users WHERE code=? AND status=?");
+  $stmt->execute(array($code, 1));
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($user) {
+    return true;
+  }
+  return false;
+}
+
+function resetPassword($code, $password)
+{
+  global $db;
+  $check = checkValidCodeResetPassword($code);
+  if ($check) {
+    $hashPassword = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $db->prepare("UPDATE users SET code=?, password=? WHERE code=?");
+    $stmt->execute(array('', $hashPassword, $code));
+    return true;
+  }
+  return false;
+}
