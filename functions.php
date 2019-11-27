@@ -71,3 +71,81 @@ function sendEmail($to, $name, $subject, $content)
   $mail->send();
   return true;
 }
+
+function createUser($displayName, $email, $password)
+{
+  global $db, $BASE_URL;
+  $hashPassword = password_hash($password, PASSWORD_DEFAULT);
+  $code = generateRandomString(16);
+  $stmt = $db->prepare("INSERT INTO users (displayName, email, password, status, code) VALUES (?, ?, ?, ?, ?)");
+  $stmt->execute(array($displayName, $email, $hashPassword, 0, $code));
+  $id = $db->lastInsertId();
+
+  $bodyContent = "Mã kích hoạt tài khoản của bạn là <strong>$code</strong><br />"
+    . "Hoặc click vào <a href='$BASE_URL/activate.php?code=$code' target='_blank'>ĐÂY</a> để kích hoạt!";
+  sendEmail($email, $displayName, 'Kích hoạt tài khoản', $bodyContent);
+  return $id;
+}
+
+function generateRandomString($length = 10)
+{
+  $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  $charactersLength = strlen($characters);
+  $randomString = '';
+  for ($i = 0; $i < $length; $i++) {
+    $randomString .= $characters[rand(0, $charactersLength - 1)];
+  }
+  return $randomString;
+}
+
+function activateUser($code)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM users WHERE code=? AND status=?");
+  $stmt->execute(array($code, 0));
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($user && $user['code'] == $code) {
+    $stmt = $db->prepare("UPDATE users SET code=?, status=? WHERE id=?");
+    $stmt->execute(array('', 1, $user['id']));
+    return true;
+  }
+  return false;
+}
+
+function sendCodeResetPassword($user)
+{
+  global $db, $BASE_URL;
+  $code = generateRandomString(16);
+
+  $stmt = $db->prepare("UPDATE users SET code=? WHERE id=?");
+  $stmt->execute(array($code, $user['id']));
+
+  $bodyContent = "Mã reset mật khẩu của bạn là <strong>$code</strong><br />"
+    . "Hoặc click vào <a href='$BASE_URL/reset-password.php?code=$code' target='_blank'>ĐÂY</a> để reset mật khẩu!";
+  sendEmail($user['email'], $user['displayName'], 'Reset mật khẩu', $bodyContent);
+}
+
+function checkValidCodeResetPassword($code)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM users WHERE code=? AND status=?");
+  $stmt->execute(array($code, 1));
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($user) {
+    return true;
+  }
+  return false;
+}
+
+function resetPassword($code, $password)
+{
+  global $db;
+  $check = checkValidCodeResetPassword($code);
+  if ($check) {
+    $hashPassword = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $db->prepare("UPDATE users SET code=?, password=? WHERE code=?");
+    $stmt->execute(array('', $hashPassword, $code));
+    return true;
+  }
+  return false;
+}
