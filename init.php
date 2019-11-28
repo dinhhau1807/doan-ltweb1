@@ -1,6 +1,6 @@
 <?php
 // Load Composer's autoloader
-require 'vendor/autoload.php';
+//require 'vendor/autoload.php';
 
 // Load core functions
 require_once 'functions.php';
