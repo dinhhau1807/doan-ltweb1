@@ -149,3 +149,10 @@ function resetPassword($code, $password)
   }
   return false;
 }
+
+function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage)
+{
+  global $db;
+  $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=? WHERE id=?");
+  return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $id));
+}
