@@ -1,15 +1,34 @@
 <?php
 require_once 'init.php';
-if ($currentUser) {
+if (!$currentUser) {
+  header('Location: index.php');
+  exit();
+} else {
   $newFeeds = findAllPosts();
 }
-$page = 'index';
 ?>
+
 <?php include 'header.php' ?>
-<?php if ($currentUser) : ?>
-  <?php
-    echo $currentUser ? '<h2>Xin chào, <b>' . $currentUser['displayName'] . '</b></h2>' : '';
-    ?>
+
+<h1>Cập nhật thông tin cá nhân</h1>
+<?php if (!(isset($_POST['displayName']))) : ?>
+  <form action="update-profile.php" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="displayName">Họ và tên</label>
+      <input type="text" class="form-control" id="displayName" name="displayName" placeholder="Họ và tên" value="<?php echo $currentUser['displayName'] ?>">
+    </div>
+    <div class="form-group">
+      <label for="phoneNumber">Số điện thoại</label>
+      <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Số điện thoại" value="<?php echo $currentUser['phoneNumber'] ?>">
+    </div>
+    <div class="form-group">
+      <label for="avatarImage">Ảnh đại diện</label>
+      <input type="file" accept=".jpeg, .jpg .png" class="form-control-file" id="avatarImage" name="avatarImage">
+    </div>
+    <button type="submit" class="btn btn-primary">Cập nhật thông tin cá nhân</button>
+  </form>
+  <hr>
+  <h1>Cập nhật trạng thái</h1> 
   <?php
     $success = true;
     if (isset($_POST['content'])) {
@@ -51,6 +70,8 @@ $page = 'index';
     <p></p>
     <button type="submit" class="btn btn-primary">Cập nhật trạng thái</button>
   </form>
+  <hr>
+  <h1>Dòng thời gian</h1>
   <?php foreach ($newFeeds as $post) : ?>
     <?php $userPost = findUserById($post['userId']); ?>
     <div class="container-fluid">
@@ -77,38 +98,41 @@ $page = 'index';
       </div>
     </div>
   <?php endforeach; ?>
-  <br>
 <?php else : ?>
-  <div class="jumbotron">
-    <section class="hero-section spad">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-xl-10 offset-xl-1">
-            <div class="row">
-              <div class="col-lg-6">
-                <div class="hero-info">
-                  <h2><strong>A2HL</strong> - Mạng xã hội dành cho sinh viên</h2>
-                  <div>
-                    <p><b> Miễn phí mà. Tham gia đi chờ chi....</b></p>
-                    <p>
-                      <a href="./register.php" class="btn btn-outline-primary" role="button">Đăng ký</a>
-                      <a href="./login.php" class="btn btn-outline-success" role="button">Đăng nhập</a>
-                    </p>
-                    <p><a href="./forgot-password.php">Quên mật khẩu ?</a></p>
-                    <br>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <figure class="hero-image">
-                  <img src="./assets/images/gif1.gif" alt="" class="img-fluid" alt="Responsive image">
-                </figure>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+  <?php
+    // fetch from data
+    $displayName = $_POST['displayName'];
+    $phoneNumber = $_POST['phoneNumber'];
+    $avatarImage = $currentUser['avatarImage'];
+
+    // fetch image
+    if (isset($_FILES['avatarImage'])) {
+      $fileName = $_FILES['avatarImage']['name'];
+      $fileTemp = $_FILES['avatarImage']['tmp_name'];
+
+      if (!empty($fileTemp)) {
+        $avatarImage = file_get_contents($fileTemp);
+      }
+    }
+
+    // check fields
+    $errorPattern = "<div class='alert alert-danger' role='alert alert-dismissible fade show'>";
+    $error = "";
+
+    if (empty($displayName)) {
+      $error .= "$errorPattern Bạn phải nhập tên hiển thị!</div>";
+    } else {
+      updateUserProfile($currentUser['id'], $displayName, $phoneNumber, $avatarImage);
+      header('Location: index.php');
+      exit();
+    }
+
+    if (!empty($error)) {
+      echo $error;
+    }
+    ?>
+  <a href="./update-profile.php" class="btn btn-light">Thử lại</a>
   </div>
 <?php endif; ?>
+
 <?php include 'footer.php' ?>

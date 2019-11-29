@@ -150,14 +150,27 @@ function resetPassword($code, $password)
   return false;
 }
 
-// Function get newfeed in index
-function getNewFeeds()
-{
+function getNewFeeds(){
   global $db;
   $stmt = $db->prepare("SELECT p.*, u.displayName FROM posts as p join users u on p.userId = u.id ORDER BY p.createdAt DESC");
   $stmt->execute();
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
+}
+function getAvatarImage($userId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT avatarImage FROM users WHERE id = ?");
+  $stmt->execute(array($userId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getPostImage($postId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT image FROM posts WHERE id = ?");
+  $stmt->execute(array($postId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 // Function create post
 function createPost($userID, $Content, $image) {
@@ -176,3 +189,9 @@ function findAllPosts()
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $posts;
   }
+function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage)
+{
+  global $db;
+  $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=? WHERE id=?");
+  return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $id));
+}

@@ -44,6 +44,12 @@ body>.container {
   font-weight: bold;
 }
 
+.img-avatar {
+  float: left;
+  width: 96px;
+  height: 96px;
+}
+
 .upload-btn-wrapper input[type=file] {
   font-size: 50px;
   position: absolute;

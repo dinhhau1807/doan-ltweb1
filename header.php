@@ -26,6 +26,9 @@
           </li>
           <?php if ($currentUser) : ?>
             <!-- Add private link -->
+            <li class="nav-item <?php echo $page == 'update-profile' ? 'active' : ''; ?>">
+              <a class="nav-link" href="./update-profile.php">Cá nhân</a>
+            </li>
           <?php endif; ?>
         </ul>
         <?php if (!$currentUser) : ?>
