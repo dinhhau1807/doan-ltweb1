@@ -1,7 +1,7 @@
 <?php 
 
 // Load Composer's autoloader
-require 'vendor/autoload.php';
+//require 'vendor/autoload.php';
 
 // Load config
 require_once 'config.php';
@@ -150,6 +150,45 @@ function resetPassword($code, $password)
   return false;
 }
 
+function getNewFeeds(){
+  global $db;
+  $stmt = $db->prepare("SELECT p.*, u.displayName FROM posts as p join users u on p.userId = u.id ORDER BY p.createdAt DESC");
+  $stmt->execute();
+  $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $posts;
+}
+function getAvatarImage($userId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT avatarImage FROM users WHERE id = ?");
+  $stmt->execute(array($userId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getPostImage($postId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT image FROM posts WHERE id = ?");
+  $stmt->execute(array($postId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+// Function create post
+function createPost($userID, $Content, $image) {
+    global $db;
+    date_default_timezone_set("Asia/Ho_Chi_Minh");
+    $dateNow = date("Y-m-d H:i:s");
+    $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image) VALUES (?, ?, ?, ?)");
+    $stmt->execute(array($userID, $dateNow, $Content, $image));
+    return $db->lastInsertId();
+}
+function findAllPosts()
+  {
+    global $db;
+    $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id  ORDER BY p.createdAt DESC");
+    $stmt->execute();
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $posts;
+  }
 function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage)
 {
   global $db;

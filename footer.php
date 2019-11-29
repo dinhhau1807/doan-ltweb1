@@ -1,7 +1,7 @@
 </main>
 <footer class="footer bg-light text-dark-50">
   <div class="container text-center">
-    Made with ❤ by <a href="javascript:void(0)">TEAM</a>
+    Made with <i class="fa fa-heart"></i> by <a href="javascript:void(0)"> TEAM </a> © 2019.
   </div>
 </footer>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

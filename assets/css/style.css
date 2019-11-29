@@ -27,3 +27,46 @@ body>.container {
   max-height: 200px;
   width: 200px;
 }
+
+.upload-btn-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.upload-btn-wrapper .btn {
+  border: 2px solid gray;
+  color: gray;
+  background-color: white;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.img-avatar {
+  float: left;
+  width: 96px;
+  height: 96px;
+}
+
+.upload-btn-wrapper input[type=file] {
+  font-size: 50px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.fa-heart {
+  font-size: 18px;
+  color: #e00;
+  animation: heartbeat .25s infinite alternate;
+  transform-origin: center;
+} 
+
+@keyframes heartbeat{
+  to {
+      transform: scale(1.4); 
+  }
+}
