@@ -17,14 +17,14 @@
       <nav class="navbar navbar-expand-md fixed-top bg-success">
         <div class="container">
           <a href="./" class="navbar-brand text-light">
-            <h1>brand</h1>
+            <h1>Yolo</h1>
           </a>
           <div>
             <?php if ($currentUser) : ?>
               <div class="d-flex justify-content-center align-items-center ml-auto">
                 <a data-toggle="tooltip"  title="Thông tin cá nhân" href="./profile.php" class="btn btn-success d-flex justify-content-center align-items-center">
-                  <?php echo '<img class="rounded-circle" style="width:20px;height:20px;margin-right:4px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                  <?php echo $currentUser['displayName'] ?>
+                <i style="margin-right: 6px;" class="fa fa-user"></i>  
+                <?php echo $currentUser['displayName']; ?>
                 </a>
                 <span class="divider"></span>
                 <a href="./" class="btn btn-success">Trang chủ</a>

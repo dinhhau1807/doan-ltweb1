@@ -48,7 +48,7 @@ $page = 'status';
       </select>
     </div>
     <p></p>
-    <button type="submit" class="btn btn-primary">Cập nhật trạng thái</button>
+    <button type="submit" class="btn btn-success">Cập nhật trạng thái</button>
   </form>
   <?php foreach ($newFeeds as $post) : ?>
     <?php $userPost = findUserById($post['userId']); ?>

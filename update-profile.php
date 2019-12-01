@@ -7,23 +7,25 @@ if (!$currentUser) {
 ?>
 <?php include 'header.php' ?>
 
-<h1>Cập nhật thông tin cá nhân</h1>
 <?php if (!(isset($_POST['displayName']))) : ?>
-  <form action="update-profile.php" method="POST" enctype="multipart/form-data">
-    <div class="form-group">
-      <label for="displayName">Họ và tên</label>
-      <input type="text" class="form-control" id="displayName" name="displayName" placeholder="Họ và tên" value="<?php echo $currentUser['displayName'] ?>">
-    </div>
-    <div class="form-group">
-      <label for="phoneNumber">Số điện thoại</label>
-      <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Số điện thoại" value="<?php echo $currentUser['phoneNumber'] ?>">
-    </div>
-    <div class="form-group">
-      <label for="avatarImage">Ảnh đại diện</label>
-      <input type="file" accept=".jpeg, .jpg, .png" class="form-control-file" id="avatarImage" name="avatarImage">
-    </div>
-    <button type="submit" class="btn btn-primary">Cập nhật thông tin cá nhân</button>
-  </form>
+  <div class="inner">
+    <h2 class="mb-2">Cập nhật thông tin cá nhân</h1>
+    <form action="update-profile.php" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="displayName">Họ và tên</label>
+        <input type="text" class="form-control" id="displayName" name="displayName" placeholder="Họ và tên" value="<?php echo $currentUser['displayName'] ?>">
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Số điện thoại</label>
+        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Số điện thoại" value="<?php echo $currentUser['phoneNumber'] ?>">
+      </div>
+      <div class="form-group">
+        <label for="avatarImage">Ảnh đại diện</label>
+        <input type="file" accept=".jpeg, .jpg, .png" class="form-control-file" id="avatarImage" name="avatarImage">
+      </div>
+      <button type="submit" class="btn btn-success">Cập nhật</button>
+    </form>
+  </div>
 <?php else : ?>
   <?php
     // fetch from data

@@ -8,20 +8,22 @@ if ($currentUser) {
 
 <?php include 'header.php' ?>
 
-<h1>Đăng nhập</h1>
 <?php if (!(isset($_POST['email']) || isset($_POST['password']))) : ?>
-  <form action="login.php" method="POST">
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="Email đăng nhập">
-    </div>
-    <div class="form-group">
-      <label for="password">Mật khẩu</label>
-      <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu">
-    </div>
-    <button type="submit" class="btn btn-primary mr-2">Đăng nhập</button>
-    <a href="./forgot-password.php">Quên mật khẩu?</a>
-  </form>
+  <div class="inner">
+    <h2 class="mb-2">Đăng nhập</h2>
+    <form action="login.php" method="POST">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Email đăng nhập">
+      </div>
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu">
+      </div>
+      <button type="submit" class="btn btn-success mr-2">Đăng nhập</button>
+      <a href="./forgot-password.php">Quên mật khẩu?</a>
+    </form>
+  </div>
 <?php else : ?>
   <?php
     // fetch from data
