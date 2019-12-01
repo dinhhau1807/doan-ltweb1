@@ -23,7 +23,7 @@ if (!$currentUser) {
         <label for="avatarImage">Ảnh đại diện</label>
         <input type="file" accept=".jpeg, .jpg, .png" class="form-control-file" id="avatarImage" name="avatarImage">
       </div>
-      <button type="submit" class="btn btn-success">Cập nhật</button>
+      <button type="submit" class="btn btn-success">Cập nhật</button> 
     </form>
   </div>
 <?php else : ?>
