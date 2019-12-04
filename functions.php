@@ -72,13 +72,16 @@ function sendEmail($to, $name, $subject, $content)
   return true;
 }
 
-function createUser($displayName, $email, $password)
+function createUser($displayName, $email, $password, $avatar, $background)
 {
   global $db, $BASE_URL;
   $hashPassword = password_hash($password, PASSWORD_DEFAULT);
   $code = generateRandomString(16);
-  $stmt = $db->prepare("INSERT INTO users (displayName, email, password, status, code) VALUES (?, ?, ?, ?, ?)");
-  $stmt->execute(array($displayName, $email, $hashPassword, 0, $code));
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d");
+
+  $stmt = $db->prepare("INSERT INTO users (displayName, email, password, avatarImage, backgroundImage, status, code, createdDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt->execute(array($displayName, $email, $hashPassword, $avatar, $background, 0, $code, $dateNow));
   $id = $db->lastInsertId();
 
   $bodyContent = "Mã kích hoạt tài khoản của bạn là <strong>$code</strong><br />"
