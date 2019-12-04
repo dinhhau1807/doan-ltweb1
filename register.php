@@ -45,7 +45,10 @@ if ($currentUser) {
       if ($user) {
         $error .= $errorPattern . "Tài khoản đã tồn tại!</div>";
       } else {
-        $newUserId = createUser($displayName, $email, $password);
+        $avatarImage = file_get_contents('./assets/images/default-avatar.jpg');
+        $backgroundImage = file_get_contents('./assets/images/default-background.png');
+
+        $newUserId = createUser($displayName, $email, $password, $avatarImage, $backgroundImage);
       }
     }
     ?>
