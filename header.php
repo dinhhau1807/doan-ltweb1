@@ -22,7 +22,7 @@
           <div>
             <?php if ($currentUser) : ?>
               <div class="d-flex justify-content-center align-items-center ml-auto">
-                <a data-toggle="tooltip"  title="Thông tin cá nhân" href="./profile.php" class="btn btn-success d-flex justify-content-center align-items-center">
+                <a data-toggle="tooltip"  title="Thông tin cá nhân" href="./profile.php?id=<?php echo $currentUser['id']; ?>" class="btn btn-success d-flex justify-content-center align-items-center">
                 <i style="margin-right: 6px;" class="fa fa-user"></i>  
                 <?php echo $currentUser['displayName']; ?>
                 </a>

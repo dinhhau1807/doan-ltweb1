@@ -5,6 +5,16 @@ if (!$currentUser) {
   exit();
 } else {
   $newFeeds = findAllPosts();
+
+  if(isset($_GET['id'])) {
+    $user = findUserById($_GET['id']);
+
+    if(!$user) {
+        header('Location: index.php');
+    }
+  } else {
+    header('Location: index.php');
+  }  
 }
 ?>
 
@@ -12,37 +22,43 @@ if (!$currentUser) {
   
 <section id="timeline-top-section">
     <div class="background-image">
-        <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>  
+        <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($user['backgroundImage']) . '"/>'; ?>  
     </div>
     <div class="container">
-        <a id="update-profile" class="btn btn-light" href="./update-profile.php" data-toggle="tooltip" data-placement="bottom" title="Cập nhật thông tin">
-            <i class="fa fa-pencil"></i>
-            <span>Cập nhật thông tin</span>
-        </a>
+        <?php if($user['id'] == $currentUser['id']): ?>
+            <a id="update-profile" class="btn btn-light" href="./update-profile.php" data-toggle="tooltip" data-placement="bottom" title="Cập nhật thông tin">
+                <i class="fa fa-pencil"></i>
+                <span>Cập nhật thông tin</span>
+            </a>
+        <?php endif; ?>        
         <div class="timeline-profile">
             <div class="avatar-image">
                 <a href="#">
-                     <?php echo '<img class="rounded-circle" style="width:180px;height:180px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+                     <?php echo '<img class="rounded-circle" style="width:180px;height:180px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                 </a>
             </div>
             <div class="user-name">
-                <h4>From VN with Love</h4>
-                <h5>(From VN with Love)</h5>
+                <h4><?php echo $user['displayName']; ?></h4>
+                <?php if(!empty($user['nickName'])): ?>
+                    <h5>(<?php echo $user['nickName']; ?>)</h5>
+                <?php endif; ?>                
             </div>
-            <div class="actions">
-                <button class="btn btn-light">
-                    <i class="fa fa-user-plus"></i>    
-                    Thêm bạn bè
-                </button>
-                <button class="btn btn-light">
-                    <i class="fa fa-rss"></i>
-                    Theo dõi
-                </button>
-                <button class="btn btn-light">
-                    <i class="fa fa-comment"></i>    
-                    Nhắn tin
-                </button>
-            </div>
+            <?php if($user['id'] != $currentUser['id']): ?>
+                <div class="actions">
+                    <button class="btn btn-light">
+                        <i class="fa fa-user-plus"></i>    
+                        Thêm bạn bè
+                    </button>
+                    <button class="btn btn-light">
+                        <i class="fa fa-rss"></i>
+                        Theo dõi
+                    </button>
+                    <button class="btn btn-light">
+                        <i class="fa fa-comment"></i>    
+                        Nhắn tin
+                    </button>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -55,31 +71,33 @@ if (!$currentUser) {
                     <i class="text-success fa fa-question-circle-o"></i>
                     Giới thiệu
                 </h5>
-                <p class="text-center">😝 Cuộc sống mà ! 😝</p>
+                <?php if(!empty($user['introContent'])): ?>
+                    <p class="text-center"><?php echo $user['introContent']; ?></p>
+                <?php endif; ?>
                 <hr />
                 <ul class="info">
                     <li>
                         <i class="fa fa-envelope"></i>
-                        <span>test@gmail.com</span>
+                        <span><?php echo $user['email']; ?></span>
                     </li>
-                    <li>
-                        <i class="fa fa-phone"></i>
-                        <span>08 888 888888</span>
-                    </li>
-                    <li>
-                        <i class="fa fa-leaf"></i>
-                        <span>Sinh ngày 01-01-1999</span>
-                    </li>
-                    <li>
-                        <i class="fa fa-home"></i>
-                        <span>Sống tại Hồ Chí Minh</span>
-                    </li>
+                    <?php if(!empty($user['phoneNumber'])): ?>
+                        <li>
+                            <i class="fa fa-phone"></i>
+                            <span><?php echo $user['phoneNumber']; ?></span>
+                        </li>
+                    <?php endif; ?>
+                    <?php if($user['phoneNumber'] != 0): ?>
+                        <li>
+                            <i class="fa fa-leaf"></i>
+                            <span>Năm sinh <?php echo $user['yearOfBirth']; ?></span>
+                        </li>
+                    <?php endif; ?>                    
                     <li>
                         <i class="fa fa-clock-o"></i>
-                        <span>Đã tham gia 10-10-2019</span>
+                        <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd-m-Y'); ?></span>
                     </li>
                     <li>
-                        <?php echo '<img style="width:100%;height:200px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+                        <?php echo '<img style="width:100%;height:200px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                     </li>
                 </ul>
             </div>
@@ -179,12 +197,12 @@ if (!$currentUser) {
                     <div class="title d-flex p-3">
                         <div class="avatar mr-3">
                             <a href="#">
-                                <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+                                <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                             </a>
                         </div>
                         <div>
                             <a class="text-success" href="#">
-                                <h5 style="margin-bottom:0;"><?php echo $currentUser["displayName"]; ?></h5>
+                                <h5 style="margin-bottom:0;"><?php echo $user["displayName"]; ?></h5>
                             </a>
                             <span class="text-secondary">
                                 10-10-2019
@@ -199,66 +217,18 @@ if (!$currentUser) {
                     </div>
                     <div class="image">
                         <a href="#">
-                            <?php echo '<img style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+                            <?php echo '<img style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                         </a>
                     </div>
                 </div>
                 <div class="post border">
                     <div class="title d-flex p-3">
                         <div class="avatar mr-3">
-                            <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                        </div>
-                        <div>
-                            <a class="text-success" href="#">
-                                <h5 style="margin-bottom:0;"><?php echo $currentUser["displayName"]; ?></h5>
-                            </a>
-                            <span class="text-secondary">
-                                10-10-2019
-                                <i class="fa fa-paper-plane-o"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="content px-3">
-                        <p>
-                            Hôm nay trời đẹp
-                        </p>
-                    </div>
-                    <div class="image">
-                        <?php echo '<img style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                    </div>
-                </div>
-                <div class="post border">
-                    <div class="title d-flex p-3">
-                        <div class="avatar mr-3">
-                            <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                        </div>
-                        <div>
-                            <a class="text-success" href="#">
-                                <h5 style="margin-bottom:0;"><?php echo $currentUser["displayName"]; ?></h5>
-                            </a>
-                            <span class="text-secondary">
-                                10-10-2019
-                                <i class="fa fa-paper-plane-o"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="content px-3">
-                        <p>
-                            Hôm nay trời đẹp
-                        </p>
-                    </div>
-                    <div class="image">
-                        <?php echo '<img class="img-fluid" style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                    </div>
-                </div>
-                <div class="post border">
-                    <div class="title d-flex p-3">
-                        <div class="avatar mr-3">
-                            <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+                            <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                         </div>
                         <div>
                              <a class="text-success" href="#">
-                                <h5 style="margin-bottom:0;"><?php echo $currentUser["displayName"]; ?></h5>
+                                <h5 style="margin-bottom:0;"><?php echo $user["displayName"]; ?></h5>
                             </a>
                             <span class="text-secondary">
                                 10-10-2019
@@ -270,9 +240,6 @@ if (!$currentUser) {
                         <p>
                             Hôm nay trời đẹp
                         </p>
-                    </div>
-                    <div class="image">
-                        <?php echo '<img style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
                     </div>
                 </div>
             </div>
