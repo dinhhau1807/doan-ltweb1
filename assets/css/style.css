@@ -58,10 +58,9 @@ header {
   display: inline-block;
 }
 
-.icon-group > button {
-  border:none;
-  background-color: transparent;
+.icon-group > a.icon {
   color: #fff;
+  padding-left: 4px;
 }
 
 .icon-group .notify {
