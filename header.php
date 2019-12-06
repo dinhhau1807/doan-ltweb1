@@ -30,24 +30,24 @@
                 <a href="./" class="btn btn-success">Trang chủ</a>
                 <span class="divider"></span>
                 <div class="icon-group">
-                  <button type="button" data-toggle="tooltip"  title="Lời mời kết bạn">
+                  <a class="icon" href="./friends/request.php" data-toggle="tooltip"  title="Lời mời kết bạn">
                     <i class="fa fa-users">
                       <span class="notify"></span>
                     </i>                    
-                  </button>
-                  <button type="button" data-toggle="tooltip"  title="Tin nhắn">
+                  </a>
+                  <a class="icon" href="./messages.php" data-toggle="tooltip"  title="Tin nhắn">
                     <i class="fa fa-comment">
                       <span class="notify"></span>
                     </i>                    
-                  </button>
-                  <button type="button" data-toggle="tooltip"  title="Thông báo">
+                  </a>
+                  <a class="icon" href="./notification.php" data-toggle="tooltip"  title="Thông báo">
                     <i class="fa fa-bell">
                       <span class="notify"></span>
                     </i>                    
-                  </button>
-                  <button id="logout" type="button" data-toggle="tooltip"  title="Đăng xuất">
+                  </a>
+                  <a class="icon" href="./logout.php" data-toggle="tooltip"  title="Đăng xuất">
                     <i class="fa fa-sign-out"></i>
-                  </button>
+                  </a>
                 </div>
               </div>
             <?php endif; ?>
