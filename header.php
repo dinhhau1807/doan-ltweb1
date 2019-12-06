@@ -12,36 +12,48 @@
 </head>
 
 <body>
-  <header>
+  <header id="header">
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-expand-md navbar-light fixed-top bg-light">
-      <span class="navbar-brand">WEB 1</span>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item <?php echo $page == 'index' ? 'active' : ''; ?>">
-            <a class="nav-link" href="./">Trang chủ <span class="sr-only">(current)</span></a>
-          </li>
-          <?php if ($currentUser) : ?>
-            <!-- Add private link -->
-            <li class="nav-item <?php echo $page == 'update-profile' ? 'active' : ''; ?>">
-              <a class="nav-link" href="./update-profile.php">Cá nhân</a>
-            </li>
-          <?php endif; ?>
-        </ul>
-        <?php if (!$currentUser) : ?>
+      <nav class="navbar navbar-expand-md fixed-top bg-success">
+        <div class="container">
+          <a href="./" class="navbar-brand text-light">
+            <h1>Yolo</h1>
+          </a>
           <div>
-            <a href="./login.php" class="btn btn-outline-primary my-2 my-sm-0">Đăng nhập</a>
-            <a href="./register.php" class="btn btn-primary my-2 my-sm-0">Đăng ký</a>
+            <?php if ($currentUser) : ?>
+              <div class="d-flex justify-content-center align-items-center ml-auto">
+                <a data-toggle="tooltip"  title="Thông tin cá nhân" href="./profile.php?id=<?php echo $currentUser['id']; ?>" class="btn btn-success d-flex justify-content-center align-items-center">
+                <i style="margin-right: 6px;" class="fa fa-user"></i>  
+                <?php echo $currentUser['displayName']; ?>
+                </a>
+                <span class="divider"></span>
+                <a href="./" class="btn btn-success">Trang chủ</a>
+                <span class="divider"></span>
+                <div class="icon-group">
+                  <button type="button" data-toggle="tooltip"  title="Lời mời kết bạn">
+                    <i class="fa fa-users">
+                      <span class="notify"></span>
+                    </i>                    
+                  </button>
+                  <button type="button" data-toggle="tooltip"  title="Tin nhắn">
+                    <i class="fa fa-comment">
+                      <span class="notify"></span>
+                    </i>                    
+                  </button>
+                  <button type="button" data-toggle="tooltip"  title="Thông báo">
+                    <i class="fa fa-bell">
+                      <span class="notify"></span>
+                    </i>                    
+                  </button>
+                  <button id="logout" type="button" data-toggle="tooltip"  title="Đăng xuất">
+                    <i class="fa fa-sign-out"></i>
+                  </button>
+                </div>
+              </div>
+            <?php endif; ?>
           </div>
-        <?php else : ?>
-          <span>Xin chào, <?php echo $currentUser['displayName'] . "!" ?></span>
-          <a href="./logout.php" class="btn btn-primary ml-2 my-sm-0">Đăng xuất</a>
-        <?php endif; ?>
-      </div>
-    </nav>
+        </div>
+      </nav>
   </header>
   
   <main role="main" class="container pb-2">

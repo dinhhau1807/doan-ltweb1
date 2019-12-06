@@ -8,23 +8,25 @@ if ($currentUser) {
 
 <?php include 'header.php' ?>
 
-<h1>Đăng ký</h1>
 <?php if (!(isset($_POST['email']) || isset($_POST['password']))) : ?>
-  <form action="register.php" method="POST">
-    <div class="form-group">
-      <label for="displayName">Họ tên</label>
-      <input type="text" class="form-control" id="displayName" name="displayName" placeholder="Họ tên">
-    </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="Email đăng nhập">
-    </div>
-    <div class="form-group">
-      <label for="password">Mật khẩu</label>
-      <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu">
-    </div>
-    <button type="submit" class="btn btn-primary">Đăng ký</button>
-  </form>
+ <div class="inner">
+  <h2 class="mb-2">Đăng ký</h2>
+    <form action="register.php" method="POST">
+      <div class="form-group">
+        <label for="displayName">Họ tên</label>
+        <input type="text" class="form-control" id="displayName" name="displayName" placeholder="Họ tên">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Email đăng nhập">
+      </div>
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu">
+      </div>
+      <button type="submit" class="btn btn-success">Đăng ký</button>
+    </form>
+ </div>
 <?php else : ?>
   <?php
     // fetch from data
@@ -43,7 +45,10 @@ if ($currentUser) {
       if ($user) {
         $error .= $errorPattern . "Tài khoản đã tồn tại!</div>";
       } else {
-        $newUserId = createUser($displayName, $email, $password);
+        $avatarImage = file_get_contents('./assets/images/default-avatar.jpg');
+        $backgroundImage = file_get_contents('./assets/images/default-background.png');
+
+        $newUserId = createUser($displayName, $email, $password, $avatarImage, $backgroundImage);
       }
     }
     ?>
@@ -53,7 +58,7 @@ if ($currentUser) {
     <a href="./register.php" class="btn btn-light">Thử lại</a>
   <?php else : ?>
     <div class="alert alert-success">Vui lòng kiểm tra email để kích hoạt tài khoản!</div>
-    <a href="./activate.php" class="btn btn-primary">Kích hoạt tài khoản</a>
+    <a href="./activate.php" class="btn btn-success">Kích hoạt tài khoản</a>
   <?php endif; ?>
   </div>
 <?php endif; ?>
