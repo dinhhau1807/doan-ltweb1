@@ -1,7 +1,7 @@
 <?php
 
 // Load Composer's autoloader
-require 'vendor/autoload.php';
+//require 'vendor/autoload.php';
 
 // Load config
 require_once 'config.php';
@@ -211,6 +211,13 @@ function sendFriendRequest($userId1, $userId2)
   $dateNow = date("Y-m-d H:i:s");
   $stmt = $db->prepare("INSERT INTO friendship SET userId1=?, userId2=?, createdAt=?");
   return $stmt->execute(array($userId1, $userId2, $dateNow));
+}
+
+function removeFriendRequest($userId1, $userId2)
+{ 
+  global $db;
+  $stmt = $db->prepare("DELETE FROM friendship WHERE (userId1=? AND userId2=?) OR (userId1=? AND userId2=?)");
+  return $stmt->execute(array($userId1, $userId2, $userId2, $userId1));
 }
 
 function getFriendShip($userId1, $userId2)
