@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // Load Composer's autoloader
 //require 'vendor/autoload.php';
@@ -72,13 +72,16 @@ function sendEmail($to, $name, $subject, $content)
   return true;
 }
 
-function createUser($displayName, $email, $password)
+function createUser($displayName, $email, $password, $avatar, $background)
 {
   global $db, $BASE_URL;
   $hashPassword = password_hash($password, PASSWORD_DEFAULT);
   $code = generateRandomString(16);
-  $stmt = $db->prepare("INSERT INTO users (displayName, email, password, status, code) VALUES (?, ?, ?, ?, ?)");
-  $stmt->execute(array($displayName, $email, $hashPassword, 0, $code));
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d");
+
+  $stmt = $db->prepare("INSERT INTO users (displayName, email, password, avatarImage, backgroundImage, status, code, createdDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt->execute(array($displayName, $email, $hashPassword, $avatar, $background, 0, $code, $dateNow));
   $id = $db->lastInsertId();
 
   $bodyContent = "Mã kích hoạt tài khoản của bạn là <strong>$code</strong><br />"
@@ -150,13 +153,15 @@ function resetPassword($code, $password)
   return false;
 }
 
-function getNewFeeds(){
+function getNewFeeds()
+{
   global $db;
   $stmt = $db->prepare("SELECT p.*, u.displayName FROM posts as p join users u on p.userId = u.id ORDER BY p.createdAt DESC");
   $stmt->execute();
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
 }
+
 function getAvatarImage($userId)
 {
   global $db;
@@ -173,25 +178,45 @@ function getPostImage($postId)
   return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 // Function create post
-function createPost($userID, $Content, $image) {
-    global $db;
-    date_default_timezone_set("Asia/Ho_Chi_Minh");
-    $dateNow = date("Y-m-d H:i:s");
-    $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image) VALUES (?, ?, ?, ?)");
-    $stmt->execute(array($userID, $dateNow, $Content, $image));
-    return $db->lastInsertId();
+function createPost($userID, $Content, $image)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image) VALUES (?, ?, ?, ?)");
+  $stmt->execute(array($userID, $dateNow, $Content, $image));
+  return $db->lastInsertId();
 }
+
 function findAllPosts()
-  {
-    global $db;
-    $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id  ORDER BY p.createdAt DESC");
-    $stmt->execute();
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $posts;
-  }
+{
+  global $db;
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id  ORDER BY p.createdAt DESC");
+  $stmt->execute();
+  $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $posts;
+}
+
 function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage)
 {
   global $db;
   $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=? WHERE id=?");
   return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $id));
+}
+
+function sendFriendRequest($userId1, $userId2)
+{ 
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO friendship SET userId1=?, userId2=?, createdAt=?");
+  return $stmt->execute(array($userId1, $userId2, $dateNow));
+}
+
+function getFriendShip($userId1, $userId2)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM friendship WHERE userId1=? AND userId2=?");
+  $stmt->execute(array($userId1, $userId2));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
 }
