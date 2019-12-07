@@ -47,7 +47,6 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                 </div>
                 <?php if ($user['id'] != $currentUser['id']) : ?>
                     <div class="actions">
-
                         <?php if ($isFollower && $isFollowing) : ?>
                             <form class="btn p-0" method="POST" action="remove-friend.php">
                                 <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
@@ -57,6 +56,33 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                 </button>
                             </form>
                         <?php else : ?>
+                            <!-- Người kia đang gửi yêu cầu -->
+                            <?php if ($isFollower && !$isFollowing) : ?>
+                                <form class="btn p-0" method="POST" action="add-friend.php">
+                                    <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+                                    <button type="submit" class="btn btn-light">
+                                        <i class="fa fa-user-plus"></i>
+                                        Xác nhận yêu cầu kết bạn
+                                    </button>
+                                </form>
+                                <form class="btn p-0" method="POST" action="remove-friend.php">
+                                    <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+                                    <button type="submit" class="btn btn-light">
+                                        <i class="fa fa-user-plus"></i>
+                                        Xoá yêu cầu kết bạn
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                            <!-- Người dùng đang gửi yêu cầu tới người kia -->
+                            <?php if (!$isFollower && $isFollowing) : ?>
+                                <form class="btn p-0" method="POST" action="remove-friend.php">
+                                    <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
+                                    <button type="submit" class="btn btn-light">
+                                        <i class="fa fa-user-plus"></i>
+                                        Huỷ yêu cầu kết bạn
+                                    </button>
+                                </form>
+                            <?php endif; ?>
                             <!-- Cả hai đều chưa gửi yêu cầu cho nhau -->
                             <?php if (!$isFollower && !$isFollowing) : ?>
                                 <form class="btn p-0" method="POST" action="add-friend.php">
@@ -68,7 +94,6 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                 </form>
                             <?php endif; ?>
                         <?php endif; ?>
-
                         <button class="btn btn-light">
                             <i class="fa fa-rss"></i>
                             Theo dõi
@@ -212,6 +237,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                 </div>
             </div>
             <div class="col-md-8">
+            <?php include 'status.php'?>
                 <div class="posts w-100">
                     <div class="post border">
                         <div class="title d-flex p-3">

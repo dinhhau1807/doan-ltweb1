@@ -7,9 +7,6 @@ $page = 'status';
 ?>
 <?php if ($currentUser) : ?>
   <?php
-    echo $currentUser ? '<h2>Xin chào, <b>' . $currentUser['displayName'] . '</b></h2>' : '';
-    ?>
-  <?php
     $success = true;
     if (isset($_POST['content'])) {
       $content = $_POST['content'];
@@ -56,34 +53,32 @@ $page = 'status';
     <?php $userPost = findUserById($post['userId']); ?>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-12 mt-3">
-          
-        <div class="post border">
-                    <div class="title d-flex p-3">
-                        <div class="avatar mr-3">
-                            <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                        </div>
-                        <div>
-                             <a class="text-success" href="#">
-                                <h5 style="margin-bottom:0;"><?php echo $currentUser["displayName"]; ?></h5>
-                            </a>
-                            <span class="text-secondary">
-                                10-10-2019
-                                <i class="fa fa-paper-plane-o"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="content px-3">
-                        <p>
-                            Hôm nay trời đẹp
-                        </p>
-                    </div>
-                    <div class="image">
-                        <?php echo '<img style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
-                    </div>
-                </div>
+        <div class="col-12 mt-3">         
+          <div class="post border">
+            <div class="title d-flex p-3">
+              <div class="avatar mr-3">
+                <?php echo '<img class="rounded-circle" style="width:50px;height:50px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+              </div>
+              <div>
+                <a class="text-success" href="#">
+                  <h5 style="margin-bottom:0;"><?php echo $currentUser["displayName"]; ?></h5>
+                </a>
+                <span class="text-secondary">
+                      10-10-2019
+                      <i class="fa fa-paper-plane-o"></i>
+                </span>
+              </div>
             </div>
-
+            <div class="content px-3">
+              <p>
+                  Hôm nay trời đẹp
+              </p>
+            </div>
+            <div class="image">
+                <?php echo '<img style="width:100%;height:400px;" src="data:image/jpeg;base64,' . base64_encode($currentUser['avatarImage']) . '"/>'; ?>
+            </div>
+        </div>
+    </div>
           <div class="card">
             <div class="card-horizontal">
               <div class="img-square-wrapper">
@@ -106,4 +101,4 @@ $page = 'status';
     </div>
   <?php endforeach; ?>
 <?php endif; ?>
-                </div>
+</div>
