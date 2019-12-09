@@ -197,11 +197,11 @@ function findAllPosts()
   return $posts;
 }
 
-function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage)
+function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage, $yearOfBirth, $nickName, $introContent, $backgroundImage)
 {
   global $db;
-  $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=? WHERE id=?");
-  return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $id));
+  $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=?, yearOfBirth=?, nickName=?, introContent=?, backgroundImage=? WHERE id=?");
+  return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $yearOfBirth, $nickName, $introContent, $backgroundImage, $id));
 }
 
 function sendFriendRequest($userId1, $userId2)
