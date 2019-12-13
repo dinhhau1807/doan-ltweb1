@@ -5,6 +5,7 @@ $page = 'index';
 <?php include 'header.php' ?>
 <?php if ($currentUser) : ?>
 <?php include 'status.php' ?>
+
 <?php else : ?>
   <div class="jumbotron">
     <section class="hero-section spad">

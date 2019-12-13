@@ -1,7 +1,7 @@
-<?php 
+<?php
 
 // Load Composer's autoloader
-require 'vendor/autoload.php';
+//require 'vendor/autoload.php';
 
 // Load config
 require_once 'config.php';
@@ -153,13 +153,15 @@ function resetPassword($code, $password)
   return false;
 }
 
-function getNewFeeds(){
+function getNewFeeds()
+{
   global $db;
   $stmt = $db->prepare("SELECT p.*, u.displayName FROM posts as p join users u on p.userId = u.id ORDER BY p.createdAt DESC");
   $stmt->execute();
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
 }
+
 function getAvatarImage($userId)
 {
   global $db;
@@ -176,25 +178,52 @@ function getPostImage($postId)
   return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 // Function create post
-function createPost($userID, $Content, $image) {
-    global $db;
-    date_default_timezone_set("Asia/Ho_Chi_Minh");
-    $dateNow = date("Y-m-d H:i:s");
-    $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image) VALUES (?, ?, ?, ?)");
-    $stmt->execute(array($userID, $dateNow, $Content, $image));
-    return $db->lastInsertId();
-}
-function findAllPosts()
-  {
-    global $db;
-    $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id  ORDER BY p.createdAt DESC");
-    $stmt->execute();
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $posts;
-  }
-function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage)
+function createPost($userID, $Content, $image)
 {
   global $db;
-  $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=? WHERE id=?");
-  return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $id));
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image) VALUES (?, ?, ?, ?)");
+  $stmt->execute(array($userID, $dateNow, $Content, $image));
+  return $db->lastInsertId();
+}
+
+function findAllPosts()
+{
+  global $db;
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id  ORDER BY p.createdAt DESC");
+  $stmt->execute();
+  $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $posts;
+}
+
+function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage, $yearOfBirth, $nickName, $introContent, $backgroundImage)
+{
+  global $db;
+  $stmt = $db->prepare("UPDATE users SET displayName=?, phoneNumber=?, avatarImage=?, yearOfBirth=?, nickName=?, introContent=?, backgroundImage=? WHERE id=?");
+  return $stmt->execute(array($displayName, $phoneNumber, $avatarImage, $yearOfBirth, $nickName, $introContent, $backgroundImage, $id));
+}
+
+function sendFriendRequest($userId1, $userId2)
+{ 
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO friendship SET userId1=?, userId2=?, createdAt=?");
+  return $stmt->execute(array($userId1, $userId2, $dateNow));
+}
+
+function removeFriendRequest($userId1, $userId2)
+{ 
+  global $db;
+  $stmt = $db->prepare("DELETE FROM friendship WHERE (userId1=? AND userId2=?) OR (userId1=? AND userId2=?)");
+  return $stmt->execute(array($userId1, $userId2, $userId2, $userId1));
+}
+
+function getFriendShip($userId1, $userId2)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM friendship WHERE userId1=? AND userId2=?");
+  $stmt->execute(array($userId1, $userId2));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
 }
