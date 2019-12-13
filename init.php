@@ -6,6 +6,7 @@
 require_once 'functions.php';
 require_once 'config.php';
 
+ob_start();
 // Report errors
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
