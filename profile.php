@@ -4,9 +4,8 @@ if (!$currentUser) {
     header('Location: index.php');
     exit();
 }
-
-$newFeeds = findAllPosts();
-
+$userId2 = $_GET['id'];
+$newFeeds = showPosts($currentUser['id'],$userId2);
 if (isset($_GET['id'])) {
     $user = findUserById($_GET['id']);
 } else {
@@ -239,23 +238,22 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
         </div>
         <div class="col-md-8">
             <?php
-                    $newFeeds = findAllPosts();
-                    $success = true;
-                    if (isset($_POST['content'])) {
-                        $content = $_POST['content'];
-                        $data = null;
-                    if (isset($_FILES['postImage'])) {
-                        $data = file_get_contents($_FILES['postImage']['tmp_name']);
-                    }
-                    $len = strlen($content);
-                    if ($len == 0 || $len > 1024) {
-                        $success = false;
-                    } else {
-                        createPost($currentUser['id'], $content, $data);                       
-                        header("Location: profile.php?id=" . $currentUser['id']);
-                        //exit();
-                    }
-                    }
+                $success = true;
+                if (isset($_POST['content'])) {
+                    $content = $_POST['content'];
+                    $data = null;
+                if (isset($_FILES['postImage'])) {
+                    $data = file_get_contents($_FILES['postImage']['tmp_name']);
+                }
+                $role = $_POST['role'];
+                $len = strlen($content);
+                if ($len == 0 || $len > 1024) {
+                    $success = false;
+                } else {
+                    createPost($currentUser['id'], $content, $data,$role);                       
+                    header("Location: profile.php?id=" . $currentUser['id']);
+                }
+                }
                 ?>
             <div class="inner">
                 <?php if (!$success) : ?>
@@ -263,6 +261,8 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     Nội dung không được rỗng và dài quá 1024 ký tự!
                 </div>
                 <?php endif; ?>
+                <!--Không cho người khác đăng lên tường-->
+                <?php if ($user['id'] == $currentUser['id']) : ?>
                 <form method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <textarea class="form-control" style="border-top-left-radius:0; border-top-right-radius: 0;"
@@ -276,7 +276,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                         </div>
                         <div class="form-group m-0">
                             <div class="select-privacy">
-                                <select class="form-control">
+                                <select class="form-control" id ="role" name="role">
                                     <option value="1">Công khai</option>
                                     <option value="2">Bạn bè</option>
                                     <option value="3">Chỉ mình tôi</option>
@@ -286,6 +286,8 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                         <button type="submit" class="btn btn-success ml-auto">Cập nhật trạng thái</button>
                     </div>
                 </form>
+                <?php else:?>
+                <?php endif; ?>
                 <?php foreach ($newFeeds as $post) : ?>
                 <?php $userPost = findUserById($post['userId']); ?>
                 <div class="row">
@@ -308,7 +310,9 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                             </h5>
                                         </a>
                                         <small class="text-muted">Đăng lúc:
-                                            <?php echo $post['createdAt']; ?></small>
+                                            <?php echo $post['createdAt']; ?> · 
+                                            <i title="<?php if($post['role'] == 1) echo 'Công khai'; elseif($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của '.$post['displayName']; else echo 'Chỉ mình tôi';?>" class="fas fa-<?php if($post['role'] == 1) echo 'globe-americas'; elseif($post['role'] == 2) echo 'user-friends'; else echo 'lock';?>"></i>                                           
+                                        </small>
                                     </div>
                                 </div>
                                 <p class="card-text mt-3"><?php echo $post['content']; ?></p>

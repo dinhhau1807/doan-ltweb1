@@ -178,23 +178,82 @@ function getPostImage($postId)
   return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 // Function create post
-function createPost($userID, $Content, $image)
+function createPost($userID, $Content, $image, $role)
 {
   global $db;
   date_default_timezone_set("Asia/Ho_Chi_Minh");
   $dateNow = date("Y-m-d H:i:s");
-  $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image) VALUES (?, ?, ?, ?)");
-  $stmt->execute(array($userID, $dateNow, $Content, $image));
+  $stmt = $db->prepare("INSERT INTO posts (userId, createdAt, content, image, role) VALUES (?, ?, ?, ?,?)");
+  $stmt->execute(array($userID, $dateNow, $Content, $image, $role));
   return $db->lastInsertId();
 }
 
-function findAllPosts()
+
+function findAllPosts($userId)
 {
+  $usr = $userId;
   global $db;
-  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id  ORDER BY p.createdAt DESC");
-  $stmt->execute();
+  $stmt = $db->prepare("SELECT  p.*,u.displayName,u.id as myImageID ,p.createdAt from ( SELECT * from posts where userId = ? union select * from posts where userId in (select userId2 from friendship where userID1= ?)
+  and (role = 2 or role = 1) 
+  ) p join users u on (p.userId = u.id) 
+    ORDER BY p.createdAt DESC");
+  $stmt->execute(array($userId,$usr));
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
+}
+
+function postsById($userId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? ORDER BY p.createdAt DESC");
+  $stmt->execute(array($userId));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+//POST PRIVACY
+//Public Mode
+function postsPublic($userId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? and p.role = 1 ORDER BY p.createdAt DESC");
+  $stmt->execute(array($userId));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+//Friend Mode
+function postsFriend($userId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? and p.role = 2 ORDER BY p.createdAt DESC");
+  $stmt->execute(array($userId));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+//Show post with relationship.
+function showPosts($userId1,$userId2)
+{
+  if($userId1 == $userId2)
+  {
+      return postsById($userId1);
+  }
+  $user1 = findUserById($userId1);
+  $user2 = findUserById($userId2);
+  if ($user1['id'] != $userId1 || $user2['id'] != $userId2) {
+    return "ID không tồn tại !";
+  }
+  $isFollowing  = getFriendShip($userId2, $userId1);
+  $isFollower = getFriendShip($userId1, $userId2);
+  $arrPosts = [];
+
+  if ($isFollower && $isFollowing){
+      $pstFriend = postsFriend($userId2);
+      $pstPublic = postsPublic($userId2);
+      $arrPosts = array_merge($arrPosts, $pstFriend);
+      $arrPosts = array_merge($arrPosts, $pstPublic);
+  }
+  if (($isFollower && !$isFollowing) || (!$isFollower && $isFollowing) || (!$isFollower && !$isFollowing)){
+    $pstPublic = postsPublic($userId2);
+    $arrPosts = array_merge($arrPosts, $pstPublic);
+  }
+  return $arrPosts;
 }
 
 function updateUserProfile($id, $displayName, $phoneNumber, $avatarImage, $yearOfBirth, $nickName, $introContent, $backgroundImage)
