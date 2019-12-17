@@ -12,7 +12,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-$enableSendNotification = true;
+$enableSendNotification = false;
 
 function detectPage()
 {
@@ -327,4 +327,35 @@ function getFriendShip($userId1, $userId2)
   $stmt = $db->prepare("SELECT * FROM friendship WHERE userId1=? AND userId2=?");
   $stmt->execute(array($userId1, $userId2));
   return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getFriendRequest($userId)
+{
+  global $db;
+
+  // Get users list
+  $stmt = $db->prepare("SELECT * FROM friendship WHERE userid1=? OR userId2=?");
+  $stmt->execute(array($userId, $userId));
+  $friendships = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  // Get friend requests
+  $friendRequest = array();
+  foreach ($friendships as $friendship) {
+    if ($friendship['userId1'] == $userId) {
+      $isFollower = getFriendShip($friendship['userId2'], $userId);
+      if (!$isFollower) {
+        $user = findUserById($friendship['userId2']);
+        array_push($friendRequest, array($user, 'isFollowing'));
+      }
+    }
+    if ($friendship['userId2'] == $userId) {
+      $isFollowing = getFriendShip($userId ,$friendship['userId1']);
+      if (!$isFollowing) {
+        $user = findUserById($friendship['userId1']);
+        array_push($friendRequest, array($user, 'isFollower'));
+      }
+    }
+  }
+
+  return $friendRequest;
 }
