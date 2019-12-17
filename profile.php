@@ -139,7 +139,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                         <?php endif; ?>
                         <li>
                             <i class="fa fa-clock-o"></i>
-                            <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd-m-Y'); ?></span>
+                            <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd/m/Y'); ?></span>
                         </li>
                         <li>
                             <?php echo '<img style="width:100%;height:200px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
