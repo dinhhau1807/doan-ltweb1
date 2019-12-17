@@ -4,6 +4,7 @@ if (!$currentUser) {
     header('Location: index.php');
     exit();
 }
+
 $userId2 = $_GET['id'];
 $newFeeds = showPosts($currentUser['id'], $userId2);
 if (isset($_GET['id'])) {
@@ -237,22 +238,25 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
             </div>
             <div class="col-md-8">
                 <?php
-                    $success = true;
-                    if (isset($_POST['content'])) {
-                        $content = $_POST['content'];
-                        $data = null;
-                        if (isset($_FILES['postImage'])) {
-                            $data = file_get_contents($_FILES['postImage']['tmp_name']);
-                        }
-                        $role = $_POST['role'];
-                        $len = strlen($content);
-                        if ($len == 0 || $len > 1024) {
-                            $success = false;
-                        } else {
-                            createPost($currentUser['id'], $content, $data, $role);
-                            header("Location: profile.php?id=" . $currentUser['id']);
-                        }
-                    }
+                                                                $success = true;
+                                                                if (isset($_POST['content'])) {
+                                                                    $content = $_POST['content'];
+                                                                    $data = null;
+                                                                    if (isset($_FILES['postImage'])) {
+                                                                        $fileTemp = $_FILES['postImage']['tmp_name'];
+                                                                        if (!empty($fileTemp)) {
+                                                                            $data = file_get_contents($fileTemp);
+                                                                        }
+                                                                    }
+                                                                    $role = $_POST['role'];
+                                                                    $len = strlen($content);
+                                                                    if ($len == 0 || $len > 1024) {
+                                                                        $success = false;
+                                                                    } else {
+                                                                        createPost($currentUser['id'], $content, $data, $role);
+                                                                        header("Location: profile.php?id=" . $currentUser['id']);
+                                                                    }
+                                                                }
                 ?>
                 <div class="inner">
                     <?php if (!$success) : ?>
