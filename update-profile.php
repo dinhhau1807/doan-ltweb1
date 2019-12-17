@@ -81,7 +81,7 @@ if (!$currentUser) {
       $error .= "$errorPattern Bạn phải nhập tên hiển thị!</div>";
     } else {
       updateUserProfile($currentUser['id'], $displayName, $phoneNumber, $avatarImage, $yearOfBirth, $nickName, $introContent, $backgroundImage);
-      header('Location: profile.php');
+      header('Location: profile.php?id=' . $currentUser['id']);
       exit();
     }
 
