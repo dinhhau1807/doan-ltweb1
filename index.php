@@ -27,6 +27,21 @@ $page = 'index';
         }
     }
     ?>
+    
+    <?php
+        if (isset($_POST['contentCMT'])) {
+            $cmt = $_POST['contentCMT'];
+            $cmtId =  $_POST['postIdCmt'];
+            $len = strlen($cmt);
+            if ($len == 0 || $len > 1024) {
+                $success = false;
+            } else {
+                addComment($cmtId, $currentUser['id'], $cmt);
+                header('Location: index.php');
+                exit();
+            }
+        }
+    ?>
     <div class="inner">
         <?php if (!$success) : ?>
             <div class="alert alert-danger" role="alert">
@@ -41,7 +56,7 @@ $page = 'index';
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="upload-btn-wrapper mr-2">
-                            <button class="btn">🖼️ <strong>Ảnh/Video</strong></button>
+                            <button class="btn"><i class="fas fa-image"><strong> Ảnh/Video</strong></i></button>
                             <input type="file" id="postImage" name="postImage" />
                         </div>
                         <div class="form-group m-0">
@@ -59,7 +74,9 @@ $page = 'index';
             </div>
         </div>
         <?php foreach ($newFeeds as $post) : ?>
-            <?php $userPost = findUserById($post['userId']); ?>
+            <?php $userPost = findUserById($post['userId']); 
+                  $comments = commentWithPostId($post['id']);
+            ?>                
             <div class="row">
                 <div class="col-12 mt-3">
                     <div class="card">
@@ -78,17 +95,19 @@ $page = 'index';
                                     <small class="text-muted">Đăng lúc:
                                         <?php echo $post['createdAt']; ?> ·
                                         <i title="<?php if ($post['role'] == 1) echo 'Công khai';
-                                                                                                                                                                                                                                                    elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
-                                                                                                                                                                                                                                                    else echo 'Chỉ mình tôi'; ?>" class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
-                                                                                                                                                                                                                                                    elseif ($post['role'] == 2) echo 'user-friends';
-                                                                                                                                                                                                                                                    else echo 'lock'; ?>"></i>
+                                            elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
+                                            else echo 'Chỉ mình tôi'; ?>" class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
+                                            elseif ($post['role'] == 2) echo 'user-friends';
+                                            else echo 'lock'; ?>"></i>
                                     </small>
                                 </div>
                             </div>
                             <p class="card-text mt-3"><?php echo $post['content']; ?></p>
+                            <?php $numOfComment = count($comments);
+                                $numOfComment = $numOfComment > 0 ? $numOfComment .' bình luận': ''; ?>
                             <?php if ($post['image'] != NULL) : ?>
                                 <figure>
-                                    <img src="view-image.php?postId=<?php echo $post['id'] ?>" alt="<?php echo $post['id'] ?>" class="img-fluid w-100">
+                                    <img src="view-image.php?postId=<?php echo $post['userId'] ?>" alt="<?php echo $post['id'] ?>" class="img-fluid w-100">
                                 </figure>
                             <?php endif; ?>
                             <div class="d-flex justify-content-between">
@@ -99,7 +118,7 @@ $page = 'index';
                                     </span>
                                 </div>
                                 <div>
-                                    <span>13 bình luận</span>
+                                    <span><?php echo $numOfComment?></span>
                                 </div>
                             </div>
                         </div>
@@ -112,38 +131,38 @@ $page = 'index';
                                     <p id="btn-comment" class="px-3 py-2"><i class="fa fa-comment"></i> Bình luận</p>
                                 </div>
                             </div>
+                            <!-- SHOW COMMENT POST -->
+                            
+                            <?php foreach ($comments as $row):?>
+                            <?php $userComment = findUserById($row['userId']);?>
                             <div class="comments mb-4">
                                 <div class="comment d-flex align-items-center mb-3">
                                     <a href="#">
-                                        <img class="rounded-circle" style="width:40px;height:40px;" src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>" alt="<?php echo $userPost['displayName'] ?>">
+                                        <img class="rounded-circle" style="width:40px;height:40px;" src="<?php echo empty($userComment['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userComment['id'] ?>" alt="<?php echo $userComment['displayName'] ?>">
                                     </a>
                                     <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
-                                        <a href="#" class="text-success font-weight-bold"><?php echo $currentUser['displayName'] ?></a>
-                                        <span>asdijasd</span>
-                                    </p>
-                                </div>
-                                <div class="comment d-flex align-items-center mb-3">
-                                    <a href="#">
-                                        <img class="rounded-circle" style="width:40px;height:40px;" src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>" alt="<?php echo $userPost['displayName'] ?>">
-                                    </a>
-                                    <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
-                                        <a href="#" class="text-success font-weight-bold"><?php echo $currentUser['displayName'] ?></a>
-                                        <span>asdijasd</span>
+                                        <a href="#" class="text-success font-weight-bold"><?php echo $userComment['displayName'] ?></a>
+                                        <span><?php echo $row['content'];?></span>
                                     </p>
                                 </div>
                             </div>
-                            <div class="content-input">
-                                <div class="row">
-                                    <div class="input-group mb-2">
-                                        <input type="text" class="form-control" placeholder="Nhập bình luận ở đây...">
-                                        <div class="input-group-append">
-                                            <button style="width: 80px;" class="btn btn-success" type="button">
-                                                <i class="fa fa-paper-plane"></i>
-                                            </button>
+                            <?php endforeach; ?>
+                            <!-- ADD COMMENT-->
+                            <form method="POST"> 
+                                <div class="content-input">
+                                    <div class="row">
+                                        <div class="input-group mb-2">
+                                            <input type="hidden" value="<?php echo $post['id']?>" name="postIdCmt" ></input>                            
+                                            <input type="text" id ="contentCMT" name="contentCMT" class="form-control" placeholder="Nhập bình luận ở đây..."></input>
+                                            <div class="input-group-append">
+                                                <button style="width: 80px;" class="btn btn-success" type="submit">
+                                                    <i class="fa fa-paper-plane"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
