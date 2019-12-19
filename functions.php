@@ -184,6 +184,7 @@ function getPostImage($postId)
   return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+//POST AREA
 // Function create post
 function createPost($userID, $Content, $image, $role)
 {
@@ -262,6 +263,7 @@ function showPosts($userId1, $userId2)
   return $arrPosts;
 }
 
+//FRIEND AREA
 // REMOVE - ADD FRIEND
 function sendFriendRequest($userId1, $userId2)
 {
@@ -358,4 +360,24 @@ function getFriendRequest($userId)
   }
 
   return $friendRequest;
+}
+
+// COMMENT AREA
+
+function addComment($postId,$userId, $content)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO comments (postId,	userId,	content, createdAt) VALUES (?, ?, ?, ?)");
+  $stmt->execute(array($postId,$userId, $content, $dateNow));
+  return $db->lastInsertId();
+}
+
+function commentWithPostId($postId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM comments WHERE postId = ? ORDER BY createdAt ASC");
+  $stmt->execute(array($postId));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
