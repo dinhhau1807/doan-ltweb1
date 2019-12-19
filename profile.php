@@ -326,18 +326,21 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                                 </a>
                                                 <small class="text-muted">Đăng lúc:
                                                     <?php echo $post['createdAt']; ?> -
-                                                    <div class="select-privacy">
-                                                        <select class="form-control role-selected" data-postId="<?php echo $post['id']; ?>" id="role" name="role">
-                                                            <option <?php echo $post['role'] == 1 ? 'selected' : '' ?> value="1">Công khai</option>
-                                                            <option <?php echo $post['role'] == 2 ? 'selected' : '' ?> value="2">Bạn bè</option>
-                                                            <option <?php echo $post['role'] == 3 ? 'selected' : '' ?> value="3">Chỉ mình tôi</option>
-                                                        </select>
-                                                    </div>
-                                                    <!-- <i title="<?php if ($post['role'] == 1) echo 'Công khai';
+                                                    <?php if ($user['id'] != $currentUser['id']) : ?>
+                                                        <i title="<?php if ($post['role'] == 1) echo 'Công khai';
                                                                     elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
                                                                     else echo 'Chỉ mình tôi'; ?>" class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
-                                                                                                            elseif ($post['role'] == 2) echo 'user-friends';
-                                                                                                            else echo 'lock'; ?>"></i> -->
+                                                                                                                elseif ($post['role'] == 2) echo 'user-friends';
+                                                                                                                else echo 'lock'; ?>"></i>
+                                                    <?php else : ?>
+                                                        <div class="select-privacy">
+                                                            <select class="form-control role-selected" data-postId="<?php echo $post['id']; ?>" id="role" name="role">
+                                                                <option <?php echo $post['role'] == 1 ? 'selected' : '' ?> value="1">Công khai</option>
+                                                                <option <?php echo $post['role'] == 2 ? 'selected' : '' ?> value="2">Bạn bè</option>
+                                                                <option <?php echo $post['role'] == 3 ? 'selected' : '' ?> value="3">Chỉ mình tôi</option>
+                                                            </select>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </small>
                                             </div>
                                         </div>
