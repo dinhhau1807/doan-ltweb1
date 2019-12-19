@@ -19,6 +19,9 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
 
 <?php include 'header.php' ?>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <?php if (!$user) : ?>
     <p class="text-center font-weight-bold">RẤT TIẾC, NGƯỜI DÙNG NÀY KHÔNG TỒN TẠI!</p>
 <?php else : ?>
@@ -238,40 +241,40 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
             </div>
             <div class="col-md-8">
                 <?php
-                    $success = true;
-                    if (isset($_POST['content'])) {
-                        $content = $_POST['content'];
-                        $data = null;
-                        if (isset($_FILES['postImage'])) {
-                            $fileTemp = $_FILES['postImage']['tmp_name'];
-                            if (!empty($fileTemp)) {
-                                $data = file_get_contents($fileTemp);
-                            }
-                        }
-                        $role = $_POST['role'];
-                        $len = strlen($content);
-                        if ($len == 0 || $len > 1024) {
-                            $success = false;
-                        } else {
-                            createPost($currentUser['id'], $content, $data, $role);
-                            header("Location: profile.php?id=" . $currentUser['id']);
+                $success = true;
+                if (isset($_POST['content'])) {
+                    $content = $_POST['content'];
+                    $data = null;
+                    if (isset($_FILES['postImage'])) {
+                        $fileTemp = $_FILES['postImage']['tmp_name'];
+                        if (!empty($fileTemp)) {
+                            $data = file_get_contents($fileTemp);
                         }
                     }
+                    $role = $_POST['role'];
+                    $len = strlen($content);
+                    if ($len == 0 || $len > 1024) {
+                        $success = false;
+                    } else {
+                        createPost($currentUser['id'], $content, $data, $role);
+                        header("Location: profile.php?id=" . $currentUser['id']);
+                    }
+                }
                 ?>
                 <!-- ADD COMMENT -->
                 <?php
-                    if (isset($_POST['contentCMT'])) {
-                        $cmt = $_POST['contentCMT'];
-                        $cmtId =  $_POST['postIdCmt'];
-                        $len = strlen($cmt);
-                        if ($len == 0 || $len > 1024) {
-                            $success = false;
-                        } else {
-                            addComment($cmtId, $currentUser['id'], $cmt);
-                            header("Location: profile.php?id=" . $currentUser['id']);
-                        }
+                if (isset($_POST['contentCMT'])) {
+                    $cmt = $_POST['contentCMT'];
+                    $cmtId =  $_POST['postIdCmt'];
+                    $len = strlen($cmt);
+                    if ($len == 0 || $len > 1024) {
+                        $success = false;
+                    } else {
+                        addComment($cmtId, $currentUser['id'], $cmt);
+                        header("Location: profile.php?id=" . $currentUser['id']);
                     }
-                 ?>
+                }
+                ?>
                 <div class="inner">
                     <?php if (!$success) : ?>
                         <div class="alert alert-danger" role="alert">
@@ -304,7 +307,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     <?php else : ?>
                     <?php endif; ?>
                     <?php foreach ($newFeeds as $post) : ?>
-                        <?php $userPost = findUserById($post['userId']); ?>
+                        <?php $userPost = findUserById($post['userId']);  ?>
                         <?php $comments = commentWithPostId($post['id']); ?>
                         <div class="row">
                             <div class="col-12 mt-3">
@@ -322,19 +325,26 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                                     </h5>
                                                 </a>
                                                 <small class="text-muted">Đăng lúc:
-                                                    <?php echo $post['createdAt']; ?> ·
-                                                    <i title="<?php if ($post['role'] == 1) echo 'Công khai';
-                                                        elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
-                                                        else echo 'Chỉ mình tôi'; ?>" class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
-                                                        elseif ($post['role'] == 2) echo 'user-friends';
-                                                        else echo 'lock'; ?>"></i>
+                                                    <?php echo $post['createdAt']; ?> -
+                                                    <div class="select-privacy">
+                                                        <select class="form-control role-selected" data-postId="<?php echo $post['id']; ?>" id="role" name="role">
+                                                            <option <?php echo $post['role'] == 1 ? 'selected' : '' ?> value="1">Công khai</option>
+                                                            <option <?php echo $post['role'] == 2 ? 'selected' : '' ?> value="2">Bạn bè</option>
+                                                            <option <?php echo $post['role'] == 3 ? 'selected' : '' ?> value="3">Chỉ mình tôi</option>
+                                                        </select>
+                                                    </div>
+                                                    <!-- <i title="<?php if ($post['role'] == 1) echo 'Công khai';
+                                                                    elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
+                                                                    else echo 'Chỉ mình tôi'; ?>" class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
+                                                                                                            elseif ($post['role'] == 2) echo 'user-friends';
+                                                                                                            else echo 'lock'; ?>"></i> -->
                                                 </small>
                                             </div>
                                         </div>
                                         <p class="card-text mt-3"><?php echo $post['content']; ?></p>
-                                        <?php 
-                                              $numOfComment = count($comments);
-                                              $numOfComment = $numOfComment > 0 ? $numOfComment .' bình luận': ''; 
+                                        <?php
+                                        $numOfComment = count($comments);
+                                        $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : '';
                                         ?>
                                         <?php if ($post['image'] != NULL) : ?>
                                             <figure>
@@ -349,7 +359,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                                 </span>
                                             </div>
                                             <div>
-                                                <span><?php echo $numOfComment?></span>
+                                                <span><?php echo $numOfComment ?></span>
                                             </div>
                                         </div>
                                     </div>
@@ -364,27 +374,27 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                             </div>
                                         </div>
                                         <!-- SHOW COMMENT POST -->
-                                        <?php foreach ($comments as $row):?>
-                                        <?php $userComment = findUserById($row['userId']);?>
-                                        <div class="comments mb-4">
-                                            <div class="comment d-flex align-items-center mb-3">
-                                                <a href="#">
-                                                    <img class="rounded-circle" style="width:40px;height:40px;" src="<?php echo empty($userComment['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userComment['id'] ?>" alt="<?php echo $userComment['displayName'] ?>">
-                                                </a>
-                                                <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
-                                                    <a href="#" class="text-success font-weight-bold"><?php echo $userComment['displayName'] ?></a>
-                                                    <span><?php echo $row['content'];?></span>
-                                                </p>
+                                        <?php foreach ($comments as $row) : ?>
+                                            <?php $userComment = findUserById($row['userId']); ?>
+                                            <div class="comments mb-4">
+                                                <div class="comment d-flex align-items-center mb-3">
+                                                    <a href="#">
+                                                        <img class="rounded-circle" style="width:40px;height:40px;" src="<?php echo empty($userComment['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userComment['id'] ?>" alt="<?php echo $userComment['displayName'] ?>">
+                                                    </a>
+                                                    <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
+                                                        <a href="#" class="text-success font-weight-bold"><?php echo $userComment['displayName'] ?></a>
+                                                        <span><?php echo $row['content']; ?></span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
                                         <?php endforeach; ?>
                                         <!-- ADD COMMENT-->
-                                        <form method="POST"> 
+                                        <form method="POST">
                                             <div class="content-input">
                                                 <div class="row">
                                                     <div class="input-group mb-2">
-                                                        <input type="hidden" value="<?php echo $post['id']?>" name="postIdCmt" ></input>                            
-                                                        <input type="text" id ="contentCMT" name="contentCMT" class="form-control" placeholder="Nhập bình luận ở đây..."></input>
+                                                        <input type="hidden" value="<?php echo $post['id'] ?>" name="postIdCmt"></input>
+                                                        <input type="text" id="contentCMT" name="contentCMT" class="form-control" placeholder="Nhập bình luận ở đây..."></input>
                                                         <div class="input-group-append">
                                                             <button style="width: 80px;" class="btn btn-success" type="submit">
                                                                 <i class="fa fa-paper-plane"></i>
@@ -403,4 +413,45 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
             </div>
     </section>
 <?php endif; ?>
+
+<script type="text/javascript">
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "3000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
+    $(document).ready(_ => {
+        $('.role-selected').change(function(e) {
+            var roleSelected = $(this).children("option:selected").val();
+            var postId = $(this).data('postid');
+            $.ajax({
+                type: 'POST',
+                url: './async/change-post-privacy-async.php',
+                data: `postId=${postId}&role=${roleSelected}`,
+                success: (response) => {
+                    var jsonData = JSON.parse(response);
+                    if (jsonData.success == true) {
+                        toastr["success"]("Đã thay đổi quyền riêng tư!");
+                    } else {
+                        toastr["error"]("Đã xảy ra lỗi!");
+                    }
+                }
+            });
+        });
+    });
+</script>
+
 <?php include 'footer.php' ?>

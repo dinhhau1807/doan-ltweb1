@@ -218,6 +218,13 @@ function postsById($userId)
 }
 
 //POST PRIVACY
+// Change privacy
+function changePostPrivacy($postId, $userId, $role) {
+  global $db;
+  $stmt = $db->prepare("UPDATE posts SET role=? WHERE id=? AND userId=?");
+  return $stmt->execute(array($role, $postId, $userId));
+}
+
 //Public Mode
 function postsPublic($userId)
 {

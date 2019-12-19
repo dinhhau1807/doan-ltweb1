@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 19, 2019 at 07:58 AM
+-- Generation Time: Dec 19, 2019 at 08:29 AM
 -- Server version: 10.4.6-MariaDB
 -- PHP Version: 7.3.9
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `yolo`
+-- Database: `doanweb1`
 --
 
 -- --------------------------------------------------------
@@ -47,6 +47,20 @@ CREATE TABLE `friendship` (
   `userId2` int(11) NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `fromUserId` int(11) NOT NULL,
+  `toUserId` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
+  `content` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -106,6 +120,14 @@ ALTER TABLE `friendship`
   ADD KEY `fk_friendshio_users_2` (`userId2`);
 
 --
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_msg_user_1` (`fromUserId`),
+  ADD KEY `fk_msg_user_2` (`toUserId`);
+
+--
 -- Indexes for table `posts`
 --
 ALTER TABLE `posts`
@@ -127,6 +149,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -158,6 +186,13 @@ ALTER TABLE `comments`
 ALTER TABLE `friendship`
   ADD CONSTRAINT `fk_friendship_users_1` FOREIGN KEY (`userId1`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `fk_friendship_users_2` FOREIGN KEY (`userId2`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `fk_msg_user_1` FOREIGN KEY (`fromUserId`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `fk_msg_user_2` FOREIGN KEY (`toUserId`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `posts`
