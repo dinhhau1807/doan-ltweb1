@@ -388,3 +388,62 @@ function commentWithPostId($postId)
   $stmt->execute(array($postId));
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// MESSAGE AREA
+
+function getLatestConversations($userId) {
+  global $db;
+  $stmt = $db->prepare("SELECT toUserId AS id, u.displayName, u.avatarImage FROM messages AS m LEFT JOIN users AS u ON u.id = m.toUserId WHERE fromUserId = ? GROUP BY toUserId ORDER BY createdAt DESC");
+  $stmt->execute(array($userId));
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  for ($i = 0; $i < count($result); $i++) {
+    $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ? AND toUserId = ? ORDER BY createdAt DESC LIMIT 1");
+    $stmt->execute(array($userId, $result[$i]['id']));
+    $lastMessage = $stmt->fetch(PDO::FETCH_ASSOC);
+    $result[$i]['lastMessage'] = $lastMessage;
+  }
+  return $result;
+}
+
+function getMessagesWithUserId($fromUserId, $toUserId) {
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ? AND toUserId = ? ORDER BY createdAt");
+  $stmt->execute(array($fromUserId, $toUserId));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function sendMessage($userId1, $userId2, $content) {
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO messages (fromUserId, toUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
+  $stmt->execute(array($userId1, $userId2, $content, 0, $dateNow));
+  $id = $db->lastInsertId();
+  $stmt = $db->prepare("SELECT * FROM messages WHERE id = ?");
+  $stmt->execute(array($id));
+  $newMessage = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt = $db->prepare("INSERT INTO messages (toUserId, fromUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
+  $stmt->execute(array($userId1, $userId2, $content, 1, $newMessage['createdAt']));
+}
+
+//LINH: Custom Func get friend for message (Shouldn't change)
+function getFriends($userId) {
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM friendship WHERE userId1 = ? OR userId2 = ?");
+  $stmt->execute(array($userId, $userId));
+  $followings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $friends = array();
+  for ($i = 0; $i < count($followings); $i++) {
+    $row1 = $followings[$i];
+    if ($userId == $row1['userId1']) {
+      $userId2 = $row1['userId2'];
+      for ($j = 0; $j < count($followings); $j++) {
+        $row2 = $followings[$j];
+        if ($userId == $row2['userId2'] && $userId2 == $row2['userId1']) {
+          $friends[] = findUserById($userId2);
+        }
+      }
+    }
+  }
+  return $friends;
+}
