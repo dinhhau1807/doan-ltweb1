@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 19, 2019 at 08:29 AM
+-- Generation Time: Dec 20, 2019 at 09:54 AM
 -- Server version: 10.4.6-MariaDB
 -- PHP Version: 7.3.9
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `doanweb1`
+-- Database: `yolo`
 --
 
 -- --------------------------------------------------------
@@ -59,7 +59,8 @@ CREATE TABLE `messages` (
   `fromUserId` int(11) NOT NULL,
   `toUserId` int(11) NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
-  `content` text NOT NULL
+  `content` text NOT NULL,
+  `type` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
