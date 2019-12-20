@@ -68,5 +68,68 @@ $(document).ready(function() {
         });
     });
 
-    
+    //for comment
+    const $commentButton = $(".btn-comment");
+    const $commentForm = $(".comment-form");    
+
+    $commentButton.on('click', function() {
+        const parent = $(this).parents('.react-group');
+        const sibling = $(parent.siblings('.comment-form')[0]);
+        const commentInput = sibling.find('input[type=text]')[0];
+
+        commentInput.focus();
+    });
+
+    for(let i = 0, len = $commentForm.length; i < len; i++) {
+        const form = $($commentForm[i]);
+        form.on('submit', function(e) {            
+            const postId = $(this).find('input[type=hidden]')[0].value;
+            const commentInput = $(this).find('input[type=text]')[0];
+            e.preventDefault();
+            
+            if(commentInput.value.trim() === '') {
+                return false;
+            }
+
+            $.ajax({
+                type: 'get',
+                url: './async/add-comment.php',
+                data: `postId=${postId}&content=${commentInput.value}`,
+                success: function(res) {
+                    const data = JSON.parse(res);
+                    const commentParent = $(form.siblings('div.comments')[0]);
+                    
+                    const html = `<div class="comment d-flex align-items-center mb-3">
+                                    <a href="./profile.php?id=${data.id}">
+                                        <img class="rounded-circle" style="width:40px;height:40px;"
+                                            src="data:image/jpeg;base64,${data.avatarImage}"
+                                            alt="${data.displayName}">
+                                    </a>
+                                    <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
+                                        <a href="./profile.php?id=${data.id}"
+                                            class="text-success font-weight-bold">${data.displayName}</a>
+                                        <span>${commentInput.value}</span>
+                                    </p>
+                                </div>`;
+
+                    commentParent.append(html);
+
+                    commentInput.value = '';
+
+                    const commentCount = $(form.parent().siblings('.card-body').find('.comment-count')[0]);
+                    const commentCountData = commentCount.data('commentcount');
+
+                    if(isNaN(+commentCountData)) {
+                        window.location.reload();
+                    }
+
+                    const htmlCount = `<span>${((+commentCountData) + 1) + ' bình luận'}</span>`
+                    commentCount.data('commentcount', (+commentCountData) + 1);
+                    commentCount.html(htmlCount);
+                }
+            });
+
+            return true;
+        });
+    }
 });
