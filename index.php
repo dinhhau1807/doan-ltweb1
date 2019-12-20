@@ -127,21 +127,25 @@ $page = 'index';
                                         </h5>
                                     </a>
                                     <small class="text-muted">Đăng lúc:
-                                        <?php echo $post['createdAt']; ?> ·
+                                        <?php echo $post['createdAt']; ?> · 
                                         <?php if ($userPost['id'] != $currentUser['id']) : ?>
                                             <i title="<?php if ($post['role'] == 1) echo 'Công khai';
                                                         elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
                                                         else echo 'Chỉ mình tôi'; ?>" class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
                                                                                                     elseif ($post['role'] == 2) echo 'user-friends';
                                                                                                     else echo 'lock'; ?>"></i>
-                                        <?php else : ?>
-                                            <div class="select-privacy">
-                                                <select class="form-control role-selected" data-postId="<?php echo $post['id']; ?>" id="role" name="role">
-                                                    <option <?php echo $post['role'] == 1 ? 'selected' : '' ?> value="1">Công khai</option>
-                                                    <option <?php echo $post['role'] == 2 ? 'selected' : '' ?> value="2">Bạn bè</option>
-                                                    <option <?php echo $post['role'] == 3 ? 'selected' : '' ?> value="3">Chỉ mình tôi</option>
-                                                </select>
-                                            </div>
+                                        <?php else: ?>
+                                            <div class="btn-group" id="select-policy">
+                                                <button class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
+                                                                        elseif ($post['role'] == 2) echo 'user-friends';
+                                                                          else echo 'lock'; ?> dropdown-toggle" data-toggle="dropdown" id="current-policy-<?php echo $post['id'];?>"></button>
+                                                <ul class="dropdown-menu">
+                                                    <a style="pointer-events:none;" class="dropdown-item" >Ai sẽ thấy bài viết này?</a>                                          
+                                                    <li data-postId="<?php echo $post['id']; ?>" data-roleId="1" ><a class="dropdown-item" href="#"><i class="fas fa-globe-americas"></i> &nbsp;<strong> Công khai</strong></a></li>
+                                                    <li data-postId="<?php echo $post['id']; ?>" data-roleId="2"><a class="dropdown-item" href="#"><i class="fas fa-user-friends"></i>&nbsp;<strong> Bạn bè</strong></a></li>
+                                                    <li data-postId="<?php echo $post['id']; ?>" data-roleId="3"><a class="dropdown-item" href="#"><i class="fas fa-lock"></i>&nbsp;<strong> &nbsp; Chỉ mình tôi</strong></a></li>
+                                                </ul>
+                                            </div> 
                                         <?php endif; ?>
                                     </small>
                                 </div>
@@ -181,11 +185,11 @@ $page = 'index';
                                 <?php $userComment = findUserById($row['userId']); ?>
                                 <div class="comments mb-4">
                                     <div class="comment d-flex align-items-center mb-3">
-                                        <a href="#">
+                                        <a href="./profile.php?id=<?php echo $row['userId']; ?>">
                                             <img class="rounded-circle" style="width:40px;height:40px;" src="<?php echo empty($userComment['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userComment['id'] ?>" alt="<?php echo $userComment['displayName'] ?>">
                                         </a>
                                         <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
-                                            <a href="#" class="text-success font-weight-bold"><?php echo $userComment['displayName'] ?></a>
+                                            <a href="./profile.php?id=<?php echo $row['userId']; ?>" class="text-success font-weight-bold"><?php echo $userComment['displayName'] ?></a>
                                             <span><?php echo $row['content']; ?></span>
                                         </p>
                                     </div>
@@ -197,7 +201,7 @@ $page = 'index';
                                     <div class="row">
                                         <div class="input-group mb-2">
                                             <input type="hidden" value="<?php echo $post['id'] ?>" name="postIdCmt"></input>
-                                            <input type="text" id="contentCMT" name="contentCMT" class="form-control" placeholder="Nhập bình luận ở đây..."></input>
+                                            <input type="text" name="contentCMT" class="form-control" placeholder="Nhập bình luận ở đây..."></input>
                                             <div class="input-group-append">
                                                 <button style="width: 80px;" class="btn btn-success" type="submit">
                                                     <i class="fa fa-paper-plane"></i>
@@ -234,17 +238,23 @@ $page = 'index';
         };
 
         $(document).ready(_ => {
-            $('.role-selected').change(function(e) {
-                var roleSelected = $(this).children("option:selected").val();
+            $('#select-policy ul li').click(function(e){
+                e.preventDefault();
+                var roleId = $(this).data('roleid');
                 var postId = $(this).data('postid');
                 $.ajax({
                     type: 'POST',
                     url: './async/change-post-privacy-async.php',
-                    data: `postId=${postId}&role=${roleSelected}`,
+                    data: `postId=${postId}&role=${roleId}`,
                     success: (response) => {
                         var jsonData = JSON.parse(response);
                         if (jsonData.success == true) {
+                            var newClass="";
+                            if (roleId==1) newClass="fas fa-globe-americas"
+                            else if (roleId==2) newClass="fas fa-user-friends"
+                            else newClass="fas fa-lock"
                             toastr["success"]("Đã thay đổi quyền riêng tư!");
+                            $(`#current-policy-${postId}`).attr('class', newClass);
                         } else {
                             toastr["error"]("Đã xảy ra lỗi!");
                         }
