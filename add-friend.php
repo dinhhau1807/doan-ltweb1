@@ -5,8 +5,6 @@ if (!$currentUser) {
     exit();
 }
 
-$newFeeds = findAllPosts();
-
 if (isset($_POST['id'])) {
     $user = findUserById($_POST['id']);
 } else {

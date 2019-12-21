@@ -5,8 +5,8 @@ if (!$currentUser) {
     exit();
 }
 
-$newFeeds = findAllPosts();
-
+$userId2 = $_GET['id'];
+$newFeeds = showPosts($currentUser['id'], $userId2);
 if (isset($_GET['id'])) {
     $user = findUserById($_GET['id']);
 } else {
@@ -18,6 +18,9 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
 ?>
 
 <?php include 'header.php' ?>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <?php if (!$user) : ?>
 <p class="text-center font-weight-bold">RẤT TIẾC, NGƯỜI DÙNG NÀY KHÔNG TỒN TẠI!</p>
@@ -99,10 +102,6 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     <i class="fa fa-rss"></i>
                     Theo dõi
                 </button>
-                <button class="btn btn-light">
-                    <i class="fa fa-comment"></i>
-                    Nhắn tin
-                </button>
             </div>
             <?php endif; ?>
         </div>
@@ -140,7 +139,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     <?php endif; ?>
                     <li>
                         <i class="fa fa-clock-o"></i>
-                        <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd-m-Y'); ?></span>
+                        <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd/m/Y'); ?></span>
                     </li>
                     <li>
                         <?php echo '<img style="width:100%;height:200px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
@@ -239,23 +238,60 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
         </div>
         <div class="col-md-8">
             <?php
-                    $newFeeds = findAllPosts();
-                    $success = true;
-                    if (isset($_POST['content'])) {
-                        $content = $_POST['content'];
-                        $data = null;
+                $success = true;
+                if (isset($_POST['content'])) {
+                    $content = $_POST['content'];
+                    $data = null;
                     if (isset($_FILES['postImage'])) {
-                        $data = file_get_contents($_FILES['postImage']['tmp_name']);
+                        $fileTemp = $_FILES['postImage']['tmp_name'];
+                        if (!empty($fileTemp)) {
+                            $data = file_get_contents($fileTemp);
+                        }
                     }
+                    $role = $_POST['role'];
                     $len = strlen($content);
                     if ($len == 0 || $len > 1024) {
                         $success = false;
                     } else {
-                        createPost($currentUser['id'], $content, $data);                       
+                        createPost($currentUser['id'], $content, $data, $role);
                         header("Location: profile.php?id=" . $currentUser['id']);
-                        //exit();
                     }
+                }
+                ?>
+
+            <!-- ADD LIKE -->
+            <?php
+                if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
+                    $userId = $_POST['currentUserId'];
+                    $postLikeId = $_POST['postLikeId'];
+                    addLike($userId, $postLikeId);
+                    header("Location: profile.php?id=" . $_GET['id']);
+                }
+                ?>
+
+            <!-- REMOVE LIKE -->
+            <?php
+                if (isset($_POST['currentUserId']) && isset($_POST['postUnlikeId'])) {
+                    $userId = $_POST['currentUserId'];
+                    $postUnlikeId = $_POST['postUnlikeId'];
+                    removeLike($userId, $postUnlikeId);
+                    header("Location: profile.php?id=" . $_GET['id']);
+                }
+                ?>
+
+            <!-- ADD COMMENT -->
+            <?php
+                if (isset($_POST['contentCMT'])) {
+                    $cmt = $_POST['contentCMT'];
+                    $cmtId =  $_POST['postIdCmt'];
+                    $len = strlen($cmt);
+                    if ($len == 0 || $len > 1024) {
+                        $success = false;
+                    } else {
+                        addComment($cmtId, $currentUser['id'], $cmt);
+                        header("Location: profile.php?id=" . $currentUser['id']);
                     }
+                }
                 ?>
             <div class="inner">
                 <?php if (!$success) : ?>
@@ -263,6 +299,8 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     Nội dung không được rỗng và dài quá 1024 ký tự!
                 </div>
                 <?php endif; ?>
+                <!--Không cho người khác đăng lên tường-->
+                <?php if ($user['id'] == $currentUser['id']) : ?>
                 <form method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <textarea class="form-control" style="border-top-left-radius:0; border-top-right-radius: 0;"
@@ -271,12 +309,12 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="upload-btn-wrapper mr-2">
-                            <button class="btn">🖼️ <strong>Ảnh/Video</strong></button>
+                            <button class="btn"><i class="fas fa-image"><strong> Ảnh/Video</strong></i></button>
                             <input type="file" id="postImage" name="postImage" />
                         </div>
                         <div class="form-group m-0">
                             <div class="select-privacy">
-                                <select class="form-control">
+                                <select class="form-control" id="role" name="role">
                                     <option value="1">Công khai</option>
                                     <option value="2">Bạn bè</option>
                                     <option value="3">Chỉ mình tôi</option>
@@ -286,32 +324,72 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                         <button type="submit" class="btn btn-success ml-auto">Cập nhật trạng thái</button>
                     </div>
                 </form>
+                <?php else : ?>
+                <?php endif; ?>
                 <?php foreach ($newFeeds as $post) : ?>
-                <?php $userPost = findUserById($post['userId']); ?>
+                <?php $userPost = findUserById($post['userId']);  ?>
+                <?php $comments = commentWithPostId($post['id']); ?>
                 <div class="row">
                     <div class="col-12 mt-3">
                         <div class="card">
                             <div class="card-body p-3">
                                 <div class="d-flex">
                                     <div class="img-square-wrapper mr-2">
-                                        <a href="#">
+                                        <a href="./profile.php?id=<?php echo $userPost['id']; ?>">
                                             <img class="rounded-circle" style="width:50px;height:50px;"
                                                 src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>"
                                                 alt="<?php echo $userPost['displayName'] ?>">
                                         </a>
                                     </div>
                                     <div>
-                                        <a href="#" class="text-success">
+                                        <a href="./profile.php?id=<?php echo $userPost['id']; ?>" class="text-success">
                                             <h5 class="card-title mb-1"><?php echo $post['displayName']; ?>&nbsp;<img
                                                     src='https://i.imgur.com/l63JR5Q.png' title=' Verified profile '
                                                     width='20' />
                                             </h5>
                                         </a>
                                         <small class="text-muted">Đăng lúc:
-                                            <?php echo $post['createdAt']; ?></small>
+                                            <?php echo $post['createdAt']; ?> -
+                                            <?php if ($user['id'] != $currentUser['id']) : ?>
+                                            <i title="<?php if ($post['role'] == 1) echo 'Công khai';
+                                                                    elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
+                                                                    else echo 'Chỉ mình tôi'; ?>"
+                                                class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
+                                                                                                                elseif ($post['role'] == 2) echo 'user-friends';
+                                                                                                                else echo 'lock'; ?>"></i>
+                                            <?php else : ?>
+                                            <div class="btn-group" id="select-policy">
+                                                <button class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
+                                                                                    elseif ($post['role'] == 2) echo 'user-friends';
+                                                                                    else echo 'lock'; ?>"
+                                                    data-toggle="dropdown"
+                                                    id="current-policy-<?php echo $post['id']; ?>"></button>
+                                                <ul class="dropdown-menu">
+                                                    <a style="pointer-events:none;" class="dropdown-item">Ai sẽ nhìn
+                                                        thấy nội dung này?</a>
+                                                    <li data-postId="<?php echo $post['id']; ?>" data-roleId="1"><a
+                                                            class="dropdown-item" href="#"><i
+                                                                class="fas fa-globe-americas"></i> &nbsp;<strong> Công
+                                                                khai</strong></a></li>
+                                                    <li data-postId="<?php echo $post['id']; ?>" data-roleId="2"><a
+                                                            class="dropdown-item" href="#"><i
+                                                                class="fas fa-user-friends"></i>&nbsp;<strong> Bạn
+                                                                bè</strong></a></li>
+                                                    <li data-postId="<?php echo $post['id']; ?>" data-roleId="3"><a
+                                                            class="dropdown-item" href="#"><i
+                                                                class="fas fa-lock"></i>&nbsp;<strong> &nbsp; Chỉ mình
+                                                                tôi</strong></a></li>
+                                                </ul>
+                                            </div>
+                                            <?php endif; ?>
+                                        </small>
                                     </div>
                                 </div>
                                 <p class="card-text mt-3"><?php echo $post['content']; ?></p>
+                                <?php
+                                        $numOfComment = count($comments);
+                                        $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : '';
+                                        ?>
                                 <?php if ($post['image'] != NULL) : ?>
                                 <figure>
                                     <img src="view-image.php?postId=<?php echo $post['id'] ?>"
@@ -321,64 +399,80 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                 <div class="d-flex justify-content-between">
                                     <div>
                                         <span>
-                                            <i class="text-success fa fa-hand-o-right"></i>
-                                            4 lượt thích
+                                            <i class="text-success fa fa-thumbs-o-up"></i>
+                                            <?php echo countLike($post['id']); ?> lượt thích
                                         </span>
                                     </div>
-                                    <div>
-                                        <span>13 bình luận</span>
+                                    <div class="comment-count" data-commentcount="<?php echo count($comments); ?>">
+                                        <span><?php echo $numOfComment ?></span>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-footer bg-transparent">
                                 <div class="d-flex react-group">
+                                    <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
+                                    <form method="POST" class="hover-secondary w-100 text-center">
+                                        <input type="hidden" name="currentUserId"
+                                            value="<?php echo $currentUser['id']; ?>">
+                                        <input type="hidden" name="postLikeId" value="<?php echo $post['id']; ?>">
+                                        <button type="submit"
+                                            class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
+                                            <i class="fa fa-thumbs-o-up"></i> Thích
+                                        </button>
+                                    </form>
+                                    <?php else: ?>
+                                    <form method="POST" class="hover-secondary w-100 text-center">
+                                        <input type="hidden" name="currentUserId"
+                                            value="<?php echo $currentUser['id']; ?>">
+                                        <input type="hidden" name="postUnlikeId" value="<?php echo $post['id']; ?>">
+                                        <button type="submit"
+                                            class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
+                                            <i class="fa fa-thumbs-up"></i> Bỏ thích
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
                                     <div class="hover-secondary w-100 text-center">
-                                        <p id="btn-like" class="px-3 py-2"><i class="fa fa-hand-o-right"></i> Thích</p>
-                                    </div>
-                                    <div class="hover-secondary w-100 text-center">
-                                        <p id="btn-comment" class="px-3 py-2"><i class="fa fa-comment"></i> Bình luận
+                                        <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận
                                         </p>
                                     </div>
                                 </div>
+                                <!-- SHOW COMMENT POST -->
                                 <div class="comments mb-4">
+                                    <?php foreach ($comments as $row) : ?>
+                                    <?php $userComment = findUserById($row['userId']); ?>
                                     <div class="comment d-flex align-items-center mb-3">
-                                        <a href="#">
+                                        <a href="./profile.php?id=<?php echo $row['userId']; ?>">
                                             <img class="rounded-circle" style="width:40px;height:40px;"
-                                                src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>"
-                                                alt="<?php echo $userPost['displayName'] ?>">
+                                                src="<?php echo empty($userComment['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userComment['id'] ?>"
+                                                alt="<?php echo $userComment['displayName'] ?>">
                                         </a>
                                         <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
-                                            <a href="#"
-                                                class="text-success font-weight-bold"><?php echo $currentUser['displayName'] ?></a>
-                                            <span>asdijasd</span>
+                                            <a href="./profile.php?id=<?php echo $row['userId']; ?>"
+                                                class="text-success font-weight-bold"><?php echo $userComment['displayName'] ?></a>
+                                            <span><?php echo $row['content']; ?></span>
                                         </p>
                                     </div>
-                                    <div class="comment d-flex align-items-center mb-3">
-                                        <a href="#">
-                                            <img class="rounded-circle" style="width:40px;height:40px;"
-                                                src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>"
-                                                alt="<?php echo $userPost['displayName'] ?>">
-                                        </a>
-                                        <p class="rounded p-2 mb-0 ml-2" style="background-color: #eee;">
-                                            <a href="#"
-                                                class="text-success font-weight-bold"><?php echo $currentUser['displayName'] ?></a>
-                                            <span>asdijasd</span>
-                                        </p>
-                                    </div>
+                                    <?php endforeach; ?>
                                 </div>
-                                <div class="content-input">
-                                    <div class="row">
-                                        <div class="input-group mb-2">
-                                            <input type="text" class="form-control"
-                                                placeholder="Nhập bình luận ở đây...">
-                                            <div class="input-group-append">
-                                                <button style="width: 80px;" class="btn btn-success" type="button">
-                                                    <i class="fa fa-paper-plane"></i>
-                                                </button>
+
+                                <!-- ADD COMMENT-->
+                                <form method="POST" class="comment-form">
+                                    <div class="content-input">
+                                        <div class="row">
+                                            <div class="input-group mb-2">
+                                                <input type="hidden" value="<?php echo $post['id'] ?>"
+                                                    name="postIdCmt" />
+                                                <input type="text" name="contentCMT" class="form-control"
+                                                    placeholder="Nhập bình luận ở đây..." required />
+                                                <div class="input-group-append">
+                                                    <button style="width: 80px;" class="btn btn-success" type="submit">
+                                                        <i class="fa fa-paper-plane"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -388,4 +482,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
         </div>
 </section>
 <?php endif; ?>
+
+<script src="./assets/js/change-privacy.js"></script>
+
 <?php include 'footer.php' ?>

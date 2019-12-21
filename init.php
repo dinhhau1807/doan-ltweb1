@@ -1,7 +1,4 @@
 <?php
-// Load Composer's autoloader
-//require 'vendor/autoload.php';
-
 // Load core functions
 require_once 'functions.php';
 require_once 'config.php';
