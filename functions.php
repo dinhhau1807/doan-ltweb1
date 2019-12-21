@@ -219,7 +219,8 @@ function postsById($userId)
 
 //POST PRIVACY
 // Change privacy
-function changePostPrivacy($postId, $userId, $role) {
+function changePostPrivacy($postId, $userId, $role)
+{
   global $db;
   $stmt = $db->prepare("UPDATE posts SET role=? WHERE id=? AND userId=?");
   return $stmt->execute(array($role, $postId, $userId));
@@ -358,7 +359,7 @@ function getFriendRequest($userId)
       }
     }
     if ($friendship['userId2'] == $userId) {
-      $isFollowing = getFriendShip($userId ,$friendship['userId1']);
+      $isFollowing = getFriendShip($userId, $friendship['userId1']);
       if (!$isFollowing) {
         $user = findUserById($friendship['userId1']);
         array_push($friendRequest, array($user, 'isFollower'));
@@ -371,13 +372,13 @@ function getFriendRequest($userId)
 
 // COMMENT AREA
 
-function addComment($postId,$userId, $content)
+function addComment($postId, $userId, $content)
 {
   global $db;
   date_default_timezone_set("Asia/Ho_Chi_Minh");
   $dateNow = date("Y-m-d H:i:s");
   $stmt = $db->prepare("INSERT INTO comments (postId,	userId,	content, createdAt) VALUES (?, ?, ?, ?)");
-  $stmt->execute(array($postId,$userId, $content, $dateNow));
+  $stmt->execute(array($postId, $userId, $content, $dateNow));
   return $db->lastInsertId();
 }
 
@@ -391,7 +392,8 @@ function commentWithPostId($postId)
 
 // MESSAGE AREA
 
-function getLatestConversations($userId) {
+function getLatestConversations($userId)
+{
   global $db;
   $stmt = $db->prepare("SELECT toUserId AS id, u.displayName, u.avatarImage FROM messages AS m LEFT JOIN users AS u ON u.id = m.toUserId WHERE fromUserId = ? GROUP BY toUserId ORDER BY createdAt DESC");
   $stmt->execute(array($userId));
@@ -405,29 +407,51 @@ function getLatestConversations($userId) {
   return $result;
 }
 
-function getMessagesWithUserId($fromUserId, $toUserId) {
+function getMessagesWithUserId($fromUserId, $toUserId)
+{
   global $db;
   $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ? AND toUserId = ? ORDER BY createdAt");
   $stmt->execute(array($fromUserId, $toUserId));
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function sendMessage($userId1, $userId2, $content) {
-  global $db;
+function sendMessage($userId1, $userId2, $content)
+{
+  global $db, $enableSendNotification, $BASE_URL;
   date_default_timezone_set("Asia/Ho_Chi_Minh");
   $dateNow = date("Y-m-d H:i:s");
   $stmt = $db->prepare("INSERT INTO messages (fromUserId, toUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
   $stmt->execute(array($userId1, $userId2, $content, 0, $dateNow));
+
   $id = $db->lastInsertId();
   $stmt = $db->prepare("SELECT * FROM messages WHERE id = ?");
   $stmt->execute(array($id));
+
   $newMessage = $stmt->fetch(PDO::FETCH_ASSOC);
+
   $stmt = $db->prepare("INSERT INTO messages (toUserId, fromUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
   $stmt->execute(array($userId1, $userId2, $content, 1, $newMessage['createdAt']));
+
+  if ($enableSendNotification) {
+    // Send email notification to userId2
+    $user1 = findUserById($userId1);
+    $user2 = findUserById($userId2);
+
+    $message = strlen($newMessage['content']) > 30 ? substr($newMessage['content'], 0, 30)."..." : $newMessage['content'];
+    $linkMessage = "<a href='$BASE_URL/messages.php'>ĐÂY</a>";
+    $user1Link = "<a href='$BASE_URL/profile.php?id=$userId1'>{$user1['displayName']}</a>";
+    $bodyContent = "Bạn vừa mới nhận được một tin nhắn mới từ người bạn: $user1Link! <br />
+                    <b>Thông tin tin nhắn:</b> $message <br />
+                    <b>Tin nhắn được gửi vào lúc:</b> {$newMessage['createdAt']} <br />
+                    Click vào $linkMessage để đi tới phần tin nhắn!";
+
+    sendEmail($user2['email'], $user2['displayName'], 'Tin nhắn mới', $bodyContent, 'Tin nhắn');
+  }
 }
 
 //LINH: Custom Func get friend for message (Shouldn't change)
-function getFriends($userId) {
+function getFriends($userId)
+{
   global $db;
   $stmt = $db->prepare("SELECT * FROM friendship WHERE userId1 = ? OR userId2 = ?");
   $stmt->execute(array($userId, $userId));
