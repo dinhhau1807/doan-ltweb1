@@ -389,7 +389,7 @@ function commentWithPostId($postId)
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// User like a post
+// LIKE AREA
 
 function addLike($userLikeId, $postId)
 {
@@ -415,4 +415,13 @@ function wasLike($currentUser, $postId)
   $stmt = $db->prepare("SELECT * FROM likes WHERE userLikeId=? and postId=?");
   $stmt->execute(array($currentUser, $postId));
   return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function countLike($postId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT COUNT(*) as count FROM likes WHERE postId=?");
+  $stmt->execute(array($postId));
+  $rows = $stmt->fetch(PDO::FETCH_ASSOC);
+  return $rows['count'];
 }

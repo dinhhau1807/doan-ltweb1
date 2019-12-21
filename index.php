@@ -65,8 +65,8 @@ $page = 'index';
     <?php
         if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
             $userId = $_POST['currentUserId'];
-            $postId = $_POST['postLikeId'];
-            addLike($userId, $postId);
+            $postLikeId = $_POST['postLikeId'];
+            addLike($userId, $postLikeId);
             header("Location: index.php");
         }
         ?>
@@ -75,8 +75,8 @@ $page = 'index';
         <?php
         if (isset($_POST['currentUserId']) && isset($_POST['postUnlikeId'])) {
             $userId = $_POST['currentUserId'];
-            $postId = $_POST['postUnlikeId'];
-            removeLike($userId, $postId);
+            $postUnlikeId = $_POST['postUnlikeId'];
+            removeLike($userId, $postUnlikeId);
             header("Location: index.php");
         }
     ?>
@@ -181,8 +181,9 @@ $page = 'index';
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <span>
-                                        <i class="text-success fa fa-hand-o-right"></i>
-                                        4 lượt thích
+                                        <i class="fa fa-thumbs-o-up"></i>
+                                        
+                                        <?php echo countLike($post['id']); ?> lượt thích
                                     </span>
                                 </div>
                                 <div>
