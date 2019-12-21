@@ -36,7 +36,7 @@ $page = 'index';
 <?php else : ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+<!-- ADD POST PROCCESS -->
 <?php
     $newFeeds = findAllPosts($currentUser['id']);
     $success = true;
@@ -60,7 +60,7 @@ $page = 'index';
         }
     }
     ?>
-
+<!-- ADD COMMENT -->
 <?php
     if (isset($_POST['contentCMT'])) {
         $cmt = $_POST['contentCMT'];
@@ -74,13 +74,14 @@ $page = 'index';
             exit();
         }
     }
-    ?>
+?>
 <div class="inner">
     <?php if (!$success) : ?>
     <div class="alert alert-danger" role="alert">
         Nội dung không được rỗng và dài quá 1024 ký tự!
     </div>
     <?php endif; ?>
+    <!-- ADD POST -->
     <div class="row">
         <div class="col-md-12">
             <form method="POST" enctype="multipart/form-data">
@@ -110,10 +111,18 @@ $page = 'index';
     </div>
     <?php foreach ($newFeeds as $post) : ?>
     <?php
-            $userPost = findUserById($post['userId']);
-            $comments = commentWithPostId($post['id']);
-            ?>
-    <div class="row">
+        $userPost = findUserById($post['userId']);
+        $comments = commentWithPostId($post['id']);
+        //Like - UnLike - Count 
+        $numOfLike = countLiked($post['id']);
+        $numOfLike = $numOfLike > 0 ? $numOfLike : "" ;
+        $userLike = isLiked($currentUser['id'], $post['id']);
+        //Count comment
+        $numOfComment = count($comments);
+        $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : '';
+    ?>
+    <!-- SHOW POST -->
+    <div class="row" id="postId-<?php echo $post['id']; ?>" >
         <div class="col-12 mt-3">
             <div class="card">
                 <div class="card-body p-3">
@@ -141,6 +150,7 @@ $page = 'index';
                                                                                                     elseif ($post['role'] == 2) echo 'user-friends';
                                                                                                     else echo 'lock'; ?>"></i>
                                 <?php else: ?>
+                                <!-- CHANGE PRIVACY POST -->
                                 <div class="btn-group" id="select-policy">
                                     <button class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
                                                                         elseif ($post['role'] == 2) echo 'user-friends';
@@ -166,30 +176,33 @@ $page = 'index';
                         </div>
                     </div>
                     <p class="card-text mt-3"><?php echo $post['content']; ?></p>
-                    <?php $numOfComment = count($comments);
-                            $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : ''; ?>
+                    
                     <?php if ($post['image'] != NULL) : ?>
                     <figure>
                         <img src="view-image.php?postId=<?php echo $post['userId'] ?>" alt="<?php echo $post['id'] ?>"
                             class="img-fluid w-100">
                     </figure>
                     <?php endif; ?>
+                    <!-- COUNT LIKE + COMMENT -->
                     <div class="d-flex justify-content-between">
-                        <div>
-                            <span>
-                                <i class="text-success fa fa-hand-o-right"></i>
-                                4 lượt thích
-                            </span>
+                        <div class="like-count">                          
+                                <i class="text-success far fa-thumbs-up "></i>                               
+                                <span><?php echo $numOfLike ?></span>                                                        
                         </div>
                         <div class="comment-count" data-commentcount="<?php echo count($comments); ?>">
                             <span><?php echo $numOfComment ?></span>
                         </div>
                     </div>
                 </div>
+                <!-- LIKE + COMMENT -->
                 <div class="card-footer bg-transparent">
                     <div class="d-flex react-group">
                         <div class="hover-secondary w-100 text-center">
-                            <p class="btn-like px-3 py-2"><i class="fa fa-hand-o-right"></i> Thích</p>
+                            <div class="reaction">
+                                <ul>
+                                    <li data-postId="<?php echo $post['id']; ?>" data-isLike="<?php if ($userLike) echo "true"; else echo "false"?>" style="display: table-cell;" class='<?php if ($userLike) echo "reaction-like"; else echo "reaction-nonlike" ?>'> Thích </li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="hover-secondary w-100 text-center">
                             <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận</p>
@@ -213,12 +226,11 @@ $page = 'index';
                         </div>
                         <?php endforeach; ?>
                     </div>
-
                     <!-- ADD COMMENT-->
                     <form method="POST" class="comment-form">
                         <div class="content-input">
                             <div class="row">
-                                <div class="input-group mb-2">
+                                <div class="input-group mb-2"> 
                                     <input type="hidden" value="<?php echo $post['id'] ?>" name="postIdCmt" />
                                     <input type="text" name="contentCMT" class="form-control"
                                         placeholder="Nhập bình luận ở đây..." required />
@@ -237,7 +249,6 @@ $page = 'index';
     </div>
     <?php endforeach; ?>
 </div>
-
 <script type="text/javascript">
 toastr.options = {
     "closeButton": false,

@@ -306,9 +306,18 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                 <?php else : ?>
                 <?php endif; ?>
                 <?php foreach ($newFeeds as $post) : ?>
-                <?php $userPost = findUserById($post['userId']);  ?>
-                <?php $comments = commentWithPostId($post['id']); ?>
-                <div class="row">
+                <?php 
+                    $userPost = findUserById($post['userId']); 
+                    $comments = commentWithPostId($post['id']);
+                     //Like - UnLike - Count 
+                    $numOfLike = countLiked($post['id']);
+                    $numOfLike = $numOfLike > 0 ? $numOfLike : "" ;
+                    $userLike = isLiked($currentUser['id'], $post['id']); 
+                    // Count cmt
+                    $numOfComment = count($comments);
+                    $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : '';              
+                ?>
+                <div class="row" id="postId-<?php echo $post['id']; ?>">
                     <div class="col-12 mt-3">
                         <div class="card">
                             <div class="card-body p-3">
@@ -337,6 +346,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                                                                                                 elseif ($post['role'] == 2) echo 'user-friends';
                                                                                                                 else echo 'lock'; ?>"></i>
                                             <?php else : ?>
+                                            <!-- CHANGE PRIVACY POST -->
                                             <div class="btn-group" id="select-policy">
                                                 <button class="fas fa-<?php if ($post['role'] == 1) echo 'globe-americas';
                                                                                     elseif ($post['role'] == 2) echo 'user-friends';
@@ -365,32 +375,32 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                     </div>
                                 </div>
                                 <p class="card-text mt-3"><?php echo $post['content']; ?></p>
-                                <?php
-                                        $numOfComment = count($comments);
-                                        $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : '';
-                                        ?>
                                 <?php if ($post['image'] != NULL) : ?>
                                 <figure>
                                     <img src="view-image.php?postId=<?php echo $post['id'] ?>"
                                         alt="<?php echo $post['id'] ?>" class="img-fluid w-100">
                                 </figure>
                                 <?php endif; ?>
+                                <!-- COUNT LIKE + COMMENT --> 
                                 <div class="d-flex justify-content-between">
-                                    <div>
-                                        <span>
-                                            <i class="text-success fa fa-hand-o-right"></i>
-                                            4 lượt thích
-                                        </span>
+                                    <div class="like-count">                          
+                                        <i class="text-success far fa-thumbs-up "></i>                               
+                                            <span><?php echo $numOfLike ?></span>                                                        
                                     </div>
                                     <div class="comment-count" data-commentcount="<?php echo count($comments); ?>">
                                         <span><?php echo $numOfComment ?></span>
                                     </div>
                                 </div>
                             </div>
+                            <!-- NAV LIKE + COMMENT -->
                             <div class="card-footer bg-transparent">
                                 <div class="d-flex react-group">
                                     <div class="hover-secondary w-100 text-center">
-                                        <p class="btn-like px-3 py-2"><i class="fa fa-hand-o-right"></i> Thích</p>
+                                        <div class="reaction">
+                                            <ul>
+                                                <li data-postId="<?php echo $post['id']; ?>" data-isLike="<?php if ($userLike) echo "true"; else echo "false"?>" style="display: table-cell;" class='<?php if ($userLike) echo "reaction-like"; else echo "reaction-nonlike" ?>'> Thích </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                     <div class="hover-secondary w-100 text-center">
                                         <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận

@@ -241,6 +241,66 @@ header {
 }
 /* /messages */
 
+/* LIKE */
+
+.reaction ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+  display: table;
+}
+
+
+.reaction ul li {
+justify-content: center;
+  align-items: center;
+  padding: 6px;
+  margin: 0px 20px;
+  display: table-cell;
+  flex-direction: row;
+  list-style-type: none;
+  cursor: pointer;
+  border: 1px solid #fff;
+  white-space: nowrap;
+  width: 33%;
+}
+
+.reaction ul li:hover {
+  background-color: #eee;
+  border: 1px solid #eee;
+}
+
+.reaction-like:before {
+  content: "\f004";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+.reaction-nonlike:before {
+content: "\f004";
+  font-family: "Font Awesome 5 Free";
+font-weight: 500;
+}
+
+.reaction-like ,
+.reaction-nonlike{
+    font-size: 12px;
+    position: absolute;
+    margin-left: 5px;
+}
+
+.reaction-like  {
+	color: #FF0000;	
+	font-weight: 600;
+}
+.reaction-nonlike {
+	color: inherit;
+	font-weight: 400;
+}
+/* /LIKE */
+
 /* post box */
 .react-group > div {
   cursor: pointer;

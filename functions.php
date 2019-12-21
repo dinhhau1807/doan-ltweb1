@@ -447,3 +447,120 @@ function getFriends($userId) {
   }
   return $friends;
 }
+
+//LIKE AREA
+//Xử lý với db
+function addWhoLiked($row,$userId,$postId)
+{
+  global $db;
+  if (empty($row['wholiked']))
+  {
+      $arr = array();
+      array_push($arr,$userId);
+      $convert = serialize($arr);
+      $stmt = $db->prepare("UPDATE posts SET wholiked= ? WHERE id = ?");
+      if ($stmt->execute([$convert,$postId]))
+      {
+          return 'Success';
+      }
+      return 'Fail';
+  }
+  $wholiked = unserialize($row['wholiked']);
+  if (in_array($userId,$wholiked,true))
+  {
+      return "Liked";
+  }
+  array_push($wholiked,$userId);
+  $convert = serialize($wholiked);
+  $stmt = $db->prepare("UPDATE posts SET wholiked=? WHERE id = ?");
+  if ($stmt->execute([$convert,$postId]))
+  {
+      return 'Success';
+  }
+  return 'Fail';
+}
+
+function removeWhoLiked($row,$userId,$postId){
+  global $db;
+  if (empty($row['wholiked']))
+  {
+      return 'Success';
+  }
+  $wholiked = unserialize($row['wholiked']);
+  foreach ($wholiked as $key => $value) 
+  {
+      if($value == $userId)
+      {
+          unset($wholiked[$key]);
+      }
+  }
+  $convert = serialize($wholiked);
+  $stmt = $db->prepare("UPDATE posts SET wholiked= ? WHERE id = ?");
+  if ($stmt->execute([$convert,$postId]))
+  {
+      return 'Success';
+  }
+  return 'Fail';
+}
+
+//Thao tác
+function likePost($userId,$postId){
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM posts WHERE id = ?");
+  if ($stmt->execute([$postId])) {
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      return addWhoLiked($row,$userId,$postId);   
+  }
+  return 'Fail';
+}
+
+function unlikePost($userId,$postId){
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM posts WHERE id = ?");
+  if ($stmt->execute([$postId])) 
+  {
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      return removeWhoLiked($row,$userId,$postId);
+  }
+  return 'Fail';
+}
+//Check like
+function isLiked($userId, $postId){
+
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM posts WHERE id = ?");
+  if ( $stmt->execute([$postId])) 
+  {
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      
+      if (!empty($row['wholiked']))
+      {
+          $wholiked = unserialize($row['wholiked']);
+          foreach ($wholiked as $key => $value) 
+          {
+              if($value == $userId)
+              {
+                  return true;
+              }
+          }
+      }
+      return false;
+  }
+  return false;
+}
+
+//Đếm like
+function countLiked($postId){
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM posts WHERE id = ?");
+  if ($stmt->execute([$postId])) 
+  {
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if(empty($row['wholiked'])) return 0;
+  
+      $array = unserialize($row['wholiked']);
+      $count = count($array);
+      return $count;
+  }
+  return 0;
+}
