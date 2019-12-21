@@ -2,7 +2,7 @@
 require_once 'init.php';
 if (isset($_POST['userId']) && isset($_POST['content'])) {
   sendMessage($currentUser['id'], $_POST['userId'], $_POST['content']);
-  header('Location: messages.php');
+  header('Location: conversation.php?id=' . $_POST['userId']);
 }
 $friends = getFriends($currentUser['id']);
 ?>
