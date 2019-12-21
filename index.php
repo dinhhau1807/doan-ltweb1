@@ -61,6 +61,26 @@ $page = 'index';
     }
     ?>
 
+    <!-- ADD LIKE -->
+    <?php
+        if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
+            $userId = $_POST['currentUserId'];
+            $postId = $_POST['postLikeId'];
+            addLike($userId, $postId);
+            header("Location: index.php");
+        }
+        ?>
+
+        <!-- REMOVE LIKE -->
+        <?php
+        if (isset($_POST['currentUserId']) && isset($_POST['postUnlikeId'])) {
+            $userId = $_POST['currentUserId'];
+            $postId = $_POST['postUnlikeId'];
+            removeLike($userId, $postId);
+            header("Location: index.php");
+        }
+    ?>
+
     <?php
     if (isset($_POST['contentCMT'])) {
         $cmt = $_POST['contentCMT'];
@@ -172,9 +192,23 @@ $page = 'index';
                         </div>
                         <div class="card-footer bg-transparent">
                             <div class="d-flex react-group">
-                                <div class="hover-secondary w-100 text-center">
-                                    <p id="btn-like" class="px-3 py-2"><i class="fa fa-hand-o-right"></i> Thích</p>
-                                </div>
+                            <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
+                                        <form method="POST" class="hover-secondary w-100 text-center">
+                                            <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                                            <input type="hidden" name="postLikeId" value="<?php echo $post['id']; ?>">
+                                            <button type="submit" class="hover-secondary w-100 text-center btn-like px-3 py-2">
+                                                <i class="fa fa-thumbs-o-up"></i> Thích
+                                            </button>
+                                        </form>
+                                        <?php else: ?>
+                                        <form method="POST" class="hover-secondary w-100 text-center">
+                                            <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                                            <input type="hidden" name="postUnlikeId" value="<?php echo $post['id']; ?>">
+                                            <button type="submit" class="hover-secondary w-100 text-center btn-like px-3 py-2">
+                                                <i class="fa fa-thumbs-up"></i> Bỏ thích
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
                                 <div class="hover-secondary w-100 text-center">
                                     <p id="btn-comment" class="px-3 py-2"><i class="fa fa-comment"></i> Bình luận</p>
                                 </div>

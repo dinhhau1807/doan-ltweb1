@@ -261,6 +261,27 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     }
                 }
                 ?>
+
+                <!-- ADD LIKE -->
+                <?php
+                if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
+                    $userId = $_POST['currentUserId'];
+                    $postId = $_POST['postLikeId'];
+                    addLike($userId, $postId);
+                    header("Location: profile.php?id=" . $_GET['id']);
+                }
+                ?>
+
+                <!-- REMOVE LIKE -->
+                <?php
+                if (isset($_POST['currentUserId']) && isset($_POST['postUnlikeId'])) {
+                    $userId = $_POST['currentUserId'];
+                    $postId = $_POST['postUnlikeId'];
+                    removeLike($userId, $postId);
+                    header("Location: profile.php?id=" . $_GET['id']);
+                }
+                ?>
+
                 <!-- ADD COMMENT -->
                 <?php
                 if (isset($_POST['contentCMT'])) {
@@ -361,7 +382,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <span>
-                                                    <i class="text-success fa fa-hand-o-right"></i>
+                                                    <i class="text-success fa fa-thumbs-o-up"></i>
                                                     4 lượt thích
                                                 </span>
                                             </div>
@@ -371,15 +392,29 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                         </div>
                                     </div>
                                     <div class="card-footer bg-transparent">
-                                        <div class="d-flex react-group">
-                                            <div class="hover-secondary w-100 text-center">
-                                                <p id="btn-like" class="px-3 py-2"><i class="fa fa-hand-o-right"></i> Thích</p>
-                                            </div>
-                                            <div class="hover-secondary w-100 text-center">
-                                                <p id="btn-comment" class="px-3 py-2"><i class="fa fa-comment"></i> Bình luận
-                                                </p>
-                                            </div>
+                                    <div class="d-flex react-group">
+                                        <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
+                                        <form method="POST" class="hover-secondary w-100 text-center">
+                                            <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                                            <input type="hidden" name="postLikeId" value="<?php echo $post['id']; ?>">
+                                            <button type="submit" class="hover-secondary w-100 text-center btn-like px-3 py-2">
+                                                <i class="fa fa-thumbs-o-up"></i> Thích
+                                            </button>
+                                        </form>
+                                        <?php else: ?>
+                                        <form method="POST" class="hover-secondary w-100 text-center">
+                                            <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                                            <input type="hidden" name="postUnlikeId" value="<?php echo $post['id']; ?>">
+                                            <button type="submit" class="hover-secondary w-100 text-center btn-like px-3 py-2">
+                                                <i class="fa fa-thumbs-up"></i> Bỏ thích
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
+                                        <div class="hover-secondary w-100 text-center">
+                                            <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận
+                                            </p>
                                         </div>
+                                    </div>
                                         <!-- SHOW COMMENT POST -->
                                         <?php foreach ($comments as $row) : ?>
                                             <?php $userComment = findUserById($row['userId']); ?>

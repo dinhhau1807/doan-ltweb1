@@ -388,3 +388,31 @@ function commentWithPostId($postId)
   $stmt->execute(array($postId));
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// User like a post
+
+function addLike($userLikeId, $postId)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO likes (userLikeId, postId, likeAt) VALUES (?, ?, ?)");
+  $stmt->execute(array($userLikeId, $postId, $dateNow));
+  return $db->lastInsertId();
+}
+
+function removeLike($currentUser, $postId)
+{
+  global $db;
+  $stmt = $db->prepare("DELETE FROM likes WHERE userLikeId=? and postId=?");
+  $stmt->execute(array($currentUser, $postId));
+  return $stmt->execute(array($currentUser, $postId));
+}
+
+function wasLike($currentUser, $postId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM likes WHERE userLikeId=? and postId=?");
+  $stmt->execute(array($currentUser, $postId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
