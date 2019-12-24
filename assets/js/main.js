@@ -7,10 +7,40 @@ $(document).ready(function() {
         const messageWrapper = $('#message-wrapper');
         const messages = $("#message-wrapper .messages");
         const closeMessageBox = $(messageWrapper.find('.close')[0]);
-
         const toUserId = $(this).data('touserid');
-
         messageWrapper.addClass('active');
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('2d930b15cfe94002c0c7', {
+        cluster: 'ap1',
+        forceTLS: true
+        });
+
+        var channel = pusher.subscribe('messenger');
+        channel.bind('newMessage', function(data) {
+            if (data.userSend==toUserId)
+            {
+            $.ajax({
+                type: 'get',
+                url: './async/fetch-conversation.php',
+                data: `touserid=${toUserId}`,
+                success: function(res) {
+                    const data = JSON.parse(res);
+                    const messagesResult = data.map(message => {
+                        return `<p class="message message-${+message.type === 0 ? 'right' : 'left'}">
+                                    <span class="content">${message.content}</span>
+                                </p>`
+                    });
+
+                    messages.html(messagesResult);
+
+                    //scroll to the last message
+                    messages.find('.message:last-child')[0].scrollIntoView();
+                }
+            });
+        }
+        });
 
         closeMessageBox.on('click', function(){
             messageWrapper.removeClass('active');
@@ -46,6 +76,7 @@ $(document).ready(function() {
                     }
                 }
             });
+
         });
 
         $.ajax({

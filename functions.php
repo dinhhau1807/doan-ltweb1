@@ -1,5 +1,4 @@
 <?php
-
 // Load Composer's autoloader
 require 'vendor/autoload.php';
 
@@ -465,6 +464,23 @@ function sendMessage($userId1, $userId2, $content)
 
   $stmt = $db->prepare("INSERT INTO messages (toUserId, fromUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
   $stmt->execute(array($userId1, $userId2, $content, 1, $newMessage['createdAt']));
+
+  
+  
+  $options = array(
+    'cluster' => 'ap1',
+    'useTLS' => true
+  );
+  $pusher = new Pusher\Pusher(
+    '2d930b15cfe94002c0c7',
+    '6d0b5d9e853b36b66568',
+    '922524',
+    $options
+  );
+
+  $data['message'] = 'hello world';
+  $data['userSend']= $userId1;
+  $pusher->trigger('messenger', 'newMessage', $data);
 
   if ($enableSendNotification) {
     // Send email notification to userId2
