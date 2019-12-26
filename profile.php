@@ -110,10 +110,6 @@ $allFriends = getFriendNotFollowing($userId2);
                 </form>
                 <?php endif; ?>
                 <?php endif; ?>
-                <!-- <button class="btn btn-light">
-                    <i class="fa fa-rss"></i>
-                    Theo dõi
-                </button> -->
 
 
                 <!-- FOLLOW AREA-->
