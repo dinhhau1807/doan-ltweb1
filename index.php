@@ -38,7 +38,16 @@ $page = 'index';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <?php
-    $newFeeds = findAllPosts($currentUser['id']);
+    $newFeeds = array();
+    if(isset($_POST['page'])) {
+        $newFeeds = findAllPosts($currentUser['id'], $_POST['page']);
+        $page = (int)$_POST['page'] + 1;
+    }
+    else {
+        $newFeeds = findAllPosts($currentUser['id'], 1);
+        $page = 2;
+    }
+
     $success = true;
     if (isset($_POST['content'])) {
         $content = $_POST['content'];
@@ -115,7 +124,7 @@ $page = 'index';
                         <input type="file" id="postImage" name="postImage" />
                     </div>
                     <div class="form-group m-0">
-                        <div class="select-privacy">
+                        <div style="max-width: 200px; margin: 4px 0;" class="select-privacy">
                             <select class="form-control" id="role" name="role">
                                 <option value="1">Công khai</option>
                                 <option value="2">Bạn bè</option>
@@ -190,7 +199,7 @@ $page = 'index';
                             $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : ''; ?>
                     <?php if ($post['image'] != NULL) : ?>
                     <figure>
-                        <img src="view-image.php?postId=<?php echo $post['userId'] ?>" alt="<?php echo $post['id'] ?>"
+                        <img src="view-image.php?postId=<?php echo $post['id'] ?>" alt="<?php echo $post['id'] ?>"
                             class="img-fluid w-100">
                     </figure>
                     <?php endif; ?>
@@ -271,6 +280,14 @@ $page = 'index';
         </div>
     </div>
     <?php endforeach; ?>
+    <?php if (count($newFeeds) != 0): ?>
+    <div class="load-more text-center pt-5">
+        <form method="POST">
+            <input type="hidden" value="<?php echo $page; ?>" name="page" />
+            <button type="submit" class="btn btn-outline-success">Tải thêm trạng thái</button>
+        </form>
+    </div>
+    <?php endif; ?>
 </div>
 
 <script src="./assets/js/change-privacy.js"></script>

@@ -195,15 +195,16 @@ function createPost($userID, $Content, $image, $role)
   return $db->lastInsertId();
 }
 
-function findAllPosts($userId)
+function findAllPosts($userId, $page)
 {
-  $usr = $userId;
+  global $limitPaging;
   global $db;
+
+  $usr = $userId;
+
   $stmt = $db->prepare("SELECT  p.*,u.displayName,u.id as myImageID ,p.createdAt from ( SELECT * from posts where userId = ? union (select * from posts where userId in (select followingId from follows where followerId = ?) and role=1)
-  union (select * from posts where userId in (select f.followingId from follows f where followerId = ? and exists (select * from friendship where (userId1=? and userId2=f.followingId) or (userId2=? and userId1=f.followingId))) and role=2)
-  
-  ) p join users u on (p.userId = u.id) 
-    ORDER BY p.createdAt DESC");
+  union (select * from posts where userId in (select f.followingId from follows f where followerId = ? and exists (select * from friendship where (userId1=? and userId2=f.followingId) or (userId2=? and userId1=f.followingId))) and role=2)  
+  ) p join users u on (p.userId = u.id) ORDER BY p.createdAt DESC LIMIT ". $limitPaging*$page);
   $stmt->execute(array($userId, $userId, $userId, $userId, $userId)); 
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
@@ -523,6 +524,14 @@ function getFriends($userId)
   return $friends;
 }
 
+function getFriendNotFollowing($userId) {
+  global $db;
+  $stmt = $db->prepare("SELECT u.* FROM friendship as f join users as u WHERE f.userId1 = ? and f.userId2 = u.id");
+  $stmt->execute(array($userId));
+
+  $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $friends;
+}
 // FOLLOW AREA
 function addFollow($followerId, $followingUserId)
 {
