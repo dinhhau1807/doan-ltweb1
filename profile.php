@@ -15,11 +15,7 @@ if (isset($_GET['id'])) {
 
 $isFollowing  = getFriendShip($currentUser['id'], $user['id']);
 $isFollower = getFriendShip($user['id'], $currentUser['id']);
-<<<<<<< HEAD
 $allFriends = getFriendNotFollowing($userId2);
-=======
-
->>>>>>> 03e7e0d6a946b5c70062f19490af01c8bd6c21af
 ?>
 
 <?php include 'header.php' ?>
@@ -131,21 +127,21 @@ $allFriends = getFriendNotFollowing($userId2);
                 ?>
 
                 <?php if (!wasFollow($currentUser['id'], $_GET['id'])): ?>
-                    <form method="POST" class="btn p-0">
-                        <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
-                        <input type="hidden" name="followingUserId" value="<?php echo $_GET['id']; ?>">
-                        <button type="submit" class="btn btn-light">
-                            <i class="fa fa-rss"></i> Theo dõi
-                        </button>
-                    </form>
+                <form method="POST" class="btn p-0">
+                    <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                    <input type="hidden" name="followingUserId" value="<?php echo $_GET['id']; ?>">
+                    <button type="submit" class="btn btn-light">
+                        <i class="fa fa-rss"></i> Theo dõi
+                    </button>
+                </form>
                 <?php else: ?>
-                    <form method="POST" class="btn p-0">
-                        <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
-                        <input type="hidden" name="unfollowingUserId" value="<?php echo $_GET['id']; ?>">
-                        <button type="submit" class="btn btn-light">
-                            <i class="fa fa-rss"></i> Huỷ theo dõi
-                        </button>
-                    </form>
+                <form method="POST" class="btn p-0">
+                    <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                    <input type="hidden" name="unfollowingUserId" value="<?php echo $_GET['id']; ?>">
+                    <button type="submit" class="btn btn-light">
+                        <i class="fa fa-rss"></i> Huỷ theo dõi
+                    </button>
+                </form>
                 <?php endif; ?>
 
             </div>
@@ -284,7 +280,7 @@ $allFriends = getFriendNotFollowing($userId2);
                 ?>
 
 
-            
+
             <!-- ADD LIKE -->
             <?php
                 if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
