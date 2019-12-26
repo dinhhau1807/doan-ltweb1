@@ -1,7 +1,20 @@
 $(document).ready(function () {
     function deleleMessage() {
+        // delete message content
         const $this = $(this);
         console.log($this.data('messageid'));
+
+        $.ajax({
+            type: 'post',
+            url: './async/delete-message.php',
+            data: `messageid=${$this.data('messageid')}`,
+            success: function (res) {
+                const message = JSON.parse(res);
+                if (message.success == true) {
+                    $this.parent().remove();
+                }
+            }
+        });
     }
 
     //Custom time Post
@@ -10,6 +23,7 @@ $(document).ready(function () {
         let timeOfNow = new Date();
         $(e)[0].innerHTML = customTimePost(timeOfNow, timeOfPost);
     })
+
     function customTimePost(current, previous) {
         var msPerMinute = 60 * 1000;
         var msPerHour = msPerMinute * 60;
@@ -26,24 +40,15 @@ $(document).ready(function () {
             } else {
                 return 'Vừa xong';
             }
-        }
-        else if (timePassed < msPerHour) {
+        } else if (timePassed < msPerHour) {
             return Math.round(timePassed / msPerMinute) + ' phút trước';
-        }
-
-        else if (timePassed < msPerDay) {
+        } else if (timePassed < msPerDay) {
             return Math.round(timePassed / msPerHour) + ' giờ trước';
-        }
-
-        else if (timePassed < msPerMonth) {
+        } else if (timePassed < msPerMonth) {
             return Math.round(timePassed / msPerDay) + ' ngày trước';
-        }
-
-        else if (timePassed < msPerYear) {
+        } else if (timePassed < msPerYear) {
             return Math.round(timePassed / msPerMonth) + ' tháng trước';
-        }
-
-        else {
+        } else {
             return Math.round(timePassed / msPerYear) + ' năm trước';
         }
     }
