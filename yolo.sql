@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.2
+-- version 4.9.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Dec 21, 2019 at 03:42 PM
--- Server version: 10.4.10-MariaDB
--- PHP Version: 7.3.12
+-- Máy chủ: 127.0.0.1
+-- Thời gian đã tạo: Th12 26, 2019 lúc 03:43 PM
+-- Phiên bản máy phục vụ: 10.4.8-MariaDB
+-- Phiên bản PHP: 7.3.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,13 +19,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `yolo`
+-- Cơ sở dữ liệu: `yolo`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `comments`
+-- Cấu trúc bảng cho bảng `comments`
 --
 
 CREATE TABLE `comments` (
@@ -36,10 +36,30 @@ CREATE TABLE `comments` (
   `createdAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Đang đổ dữ liệu cho bảng `comments`
+--
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `friendship`
+-- Cấu trúc bảng cho bảng `follows`
+--
+
+CREATE TABLE `follows` (
+  `followerId` int(11) NOT NULL,
+  `followingId` int(11) NOT NULL,
+  `followAt` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Đang đổ dữ liệu cho bảng `follows`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `friendship`
 --
 
 CREATE TABLE `friendship` (
@@ -48,11 +68,10 @@ CREATE TABLE `friendship` (
   `createdAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `likes`
+-- Cấu trúc bảng cho bảng `likes`
 --
 
 CREATE TABLE `likes` (
@@ -62,10 +81,14 @@ CREATE TABLE `likes` (
   `likeAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Đang đổ dữ liệu cho bảng `likes`
+--
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `messages`
+-- Cấu trúc bảng cho bảng `messages`
 --
 
 CREATE TABLE `messages` (
@@ -77,10 +100,14 @@ CREATE TABLE `messages` (
   `type` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Đang đổ dữ liệu cho bảng `messages`
+--
+
 -- --------------------------------------------------------
 
 --
--- Table structure for table `posts`
+-- Cấu trúc bảng cho bảng `posts`
 --
 
 CREATE TABLE `posts` (
@@ -93,7 +120,13 @@ CREATE TABLE `posts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
--- Table structure for table `users`
+-- Đang đổ dữ liệu cho bảng `posts`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `users`
 --
 
 CREATE TABLE `users` (
@@ -114,11 +147,14 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
--- Indexes for dumped tables
+-- Đang đổ dữ liệu cho bảng `users`
+--
+--
+-- Chỉ mục cho các bảng đã đổ
 --
 
 --
--- Indexes for table `comments`
+-- Chỉ mục cho bảng `comments`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`),
@@ -126,14 +162,21 @@ ALTER TABLE `comments`
   ADD KEY `fk_comment_post` (`postId`);
 
 --
--- Indexes for table `friendship`
+-- Chỉ mục cho bảng `follows`
+--
+ALTER TABLE `follows`
+  ADD PRIMARY KEY (`followerId`,`followingId`),
+  ADD KEY `fk_follwingId_users` (`followingId`);
+
+--
+-- Chỉ mục cho bảng `friendship`
 --
 ALTER TABLE `friendship`
   ADD PRIMARY KEY (`userId1`,`userId2`),
   ADD KEY `fk_friendshio_users_2` (`userId2`);
 
 --
--- Indexes for table `likes`
+-- Chỉ mục cho bảng `likes`
 --
 ALTER TABLE `likes`
   ADD PRIMARY KEY (`id`),
@@ -141,7 +184,7 @@ ALTER TABLE `likes`
   ADD KEY `fk_likes_posts` (`postId`);
 
 --
--- Indexes for table `messages`
+-- Chỉ mục cho bảng `messages`
 --
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`),
@@ -149,87 +192,94 @@ ALTER TABLE `messages`
   ADD KEY `fk_msg_user_2` (`toUserId`);
 
 --
--- Indexes for table `posts`
+-- Chỉ mục cho bảng `posts`
 --
 ALTER TABLE `posts`
   ADD PRIMARY KEY (`id`,`userId`),
   ADD KEY `fk_posts_users` (`userId`);
 
 --
--- Indexes for table `users`
+-- Chỉ mục cho bảng `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT cho các bảng đã đổ
 --
 
 --
--- AUTO_INCREMENT for table `comments`
+-- AUTO_INCREMENT cho bảng `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
 
 --
--- AUTO_INCREMENT for table `likes`
+-- AUTO_INCREMENT cho bảng `likes`
 --
 ALTER TABLE `likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=216;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
 
 --
--- AUTO_INCREMENT for table `messages`
+-- AUTO_INCREMENT cho bảng `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 
 --
--- AUTO_INCREMENT for table `posts`
+-- AUTO_INCREMENT cho bảng `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- Constraints for dumped tables
+-- Các ràng buộc cho các bảng đã đổ
 --
 
 --
--- Constraints for table `comments`
+-- Các ràng buộc cho bảng `comments`
 --
 ALTER TABLE `comments`
   ADD CONSTRAINT `fk_comment_post` FOREIGN KEY (`postId`) REFERENCES `posts` (`id`),
   ADD CONSTRAINT `fk_comment_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `friendship`
+-- Các ràng buộc cho bảng `follows`
+--
+ALTER TABLE `follows`
+  ADD CONSTRAINT `fk_follwerId_users` FOREIGN KEY (`followerId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_follwingId_users` FOREIGN KEY (`followingId`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Các ràng buộc cho bảng `friendship`
 --
 ALTER TABLE `friendship`
   ADD CONSTRAINT `fk_friendship_users_1` FOREIGN KEY (`userId1`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `fk_friendship_users_2` FOREIGN KEY (`userId2`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `likes`
+-- Các ràng buộc cho bảng `likes`
 --
 ALTER TABLE `likes`
   ADD CONSTRAINT `fk_likes_posts` FOREIGN KEY (`postId`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_likes_users` FOREIGN KEY (`userLikeId`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `messages`
+-- Các ràng buộc cho bảng `messages`
 --
 ALTER TABLE `messages`
   ADD CONSTRAINT `fk_msg_user_1` FOREIGN KEY (`fromUserId`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `fk_msg_user_2` FOREIGN KEY (`toUserId`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `posts`
+-- Các ràng buộc cho bảng `posts`
 --
 ALTER TABLE `posts`
   ADD CONSTRAINT `fk_posts_users` FOREIGN KEY (`userId`) REFERENCES `users` (`id`);
