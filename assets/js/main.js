@@ -1,4 +1,47 @@
 $(document).ready(function() {
+    //Custom time Post
+    $('.custom-time').each((i,e) => {
+        let timeOfPost =  new Date($(e)[0].innerHTML);
+        let timeOfNow = new Date(); 
+		$(e)[0].innerHTML = customTimePost(timeOfNow, timeOfPost);
+    })
+    function customTimePost(current, previous) {
+        var msPerMinute = 60 * 1000;
+        var msPerHour = msPerMinute * 60;
+        var msPerDay = msPerHour * 24;
+        var msPerMonth = msPerDay * 30;
+        var msPerYear = msPerDay * 365;
+    
+        //Compare time
+        var timePassed = current - previous;
+    
+        if (timePassed < msPerMinute) {
+            if (Math.round(timePassed/1000) > 0) {
+                 return Math.round(timePassed/1000) + ' seconds ago';   
+            } else {
+                return 'Just now';
+            }
+        }
+        else if (timePassed < msPerHour) {
+             return Math.round(timePassed/msPerMinute) + ' minutes ago';   
+        }
+    
+        else if (timePassed < msPerDay ) {
+             return Math.round(timePassed/msPerHour ) + ' hours ago';   
+        }
+    
+        else if (timePassed < msPerMonth) {
+            return Math.round(timePassed/msPerDay) + ' days ago';   
+        }
+    
+        else if (timePassed < msPerYear) {
+            return Math.round(timePassed/msPerMonth) + ' months ago';   
+        }
+    
+        else {
+            return Math.round(timePassed/msPerYear ) + ' years ago';   
+        }
+    }
     //active tooltip
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -162,5 +205,5 @@ $(document).ready(function() {
 
             return true;
         });
-    }
+    } 
 });

@@ -151,8 +151,8 @@ $page = 'index';
                                         src='https://i.imgur.com/l63JR5Q.png' title=' Verified profile ' width='20' />
                                 </h5>
                             </a>
-                            <small class="text-muted">Đăng lúc:
-                                <?php echo $post['createdAt']; ?> ·
+                            <small class="text-muted">
+                                <i class="custom-time"><?php echo $post['createdAt']; ?></i> ·
                                 <?php if ($userPost['id'] != $currentUser['id']) : ?>
                                 <i title="<?php if ($post['role'] == 1) echo 'Công khai';
                                                         elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
