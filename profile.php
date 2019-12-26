@@ -6,7 +6,17 @@ if (!$currentUser) {
 }
 
 $userId2 = $_GET['id'];
-$newFeeds = showPosts($currentUser['id'], $userId2);
+$newFeeds = array();
+
+if(isset($_GET['page'])) {
+    $newFeeds = showPosts($currentUser['id'], $userId2, $_GET['page']);
+    $page = (int)$_GET['page'] + 1;
+}
+else {
+    $newFeeds = showPosts($currentUser['id'], $userId2, 1);
+    $page = 2;
+}
+
 if (isset($_GET['id'])) {
     $user = findUserById($_GET['id']);
 } else {
@@ -227,9 +237,6 @@ $allFriends = getFriendNotFollowing($userId2);
                 </div>
             </div>
 
-
-
-            <!-- IN PROGRESS -->
             <div class="list-friend border w-100 p-3 mb-3">
                 <a class="text-dark" href="#">
                     <h5>
@@ -251,9 +258,6 @@ $allFriends = getFriendNotFollowing($userId2);
                     <?php endforeach; ?>
                 </div>
             </div>
-            <!-- IN PROGRESS -->
-
-
 
         </div>
         <div class="col-md-8">
@@ -500,6 +504,15 @@ $allFriends = getFriendNotFollowing($userId2);
                     </div>
                 </div>
                 <?php endforeach; ?>
+                <?php if (count($newFeeds) != 0): ?>
+                <div class="load-more text-center pt-5">
+                    <form method="GET">
+                        <input type="hidden" value="<?php echo $userId2; ?>" name="id" />
+                        <input type="hidden" value="<?php echo $page; ?>" name="page" />
+                        <button type="submit" class="btn btn-outline-success">Tải thêm trạng thái</button>
+                    </form>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 </section>

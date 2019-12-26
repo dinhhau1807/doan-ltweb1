@@ -39,9 +39,9 @@ $page = 'index';
 
 <?php
     $newFeeds = array();
-    if(isset($_POST['page'])) {
-        $newFeeds = findAllPosts($currentUser['id'], $_POST['page']);
-        $page = (int)$_POST['page'] + 1;
+    if(isset($_GET['page'])) {
+        $newFeeds = findAllPosts($currentUser['id'], $_GET['page']);
+        $page = (int)$_GET['page'] + 1;
     }
     else {
         $newFeeds = findAllPosts($currentUser['id'], 1);
@@ -282,7 +282,7 @@ $page = 'index';
     <?php endforeach; ?>
     <?php if (count($newFeeds) != 0): ?>
     <div class="load-more text-center pt-5">
-        <form method="POST">
+        <form method="GET">
             <input type="hidden" value="<?php echo $page; ?>" name="page" />
             <button type="submit" class="btn btn-outline-success">Tải thêm trạng thái</button>
         </form>

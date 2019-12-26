@@ -210,10 +210,11 @@ function findAllPosts($userId, $page)
   return $posts;
 }
 
-function postsById($userId)
+function postsById($userId, $page)
 {
+  global $limitPaging;
   global $db;
-  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? ORDER BY p.createdAt DESC");
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? ORDER BY p.createdAt DESC LIMIT ". ($page*$limitPaging));
   $stmt->execute(array($userId));
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -245,10 +246,12 @@ function postsFriend($userId)
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 //Show post with relationship.
-function showPosts($userId1, $userId2)
+function showPosts($userId1, $userId2, $page)
 {
+  global $limitPaging;
+
   if ($userId1 == $userId2) {
-    return postsById($userId1);
+    return postsById($userId1, $page);
   }
   $user1 = findUserById($userId1);
   $user2 = findUserById($userId2);
@@ -269,7 +272,7 @@ function showPosts($userId1, $userId2)
     $pstPublic = postsPublic($userId2);
     $arrPosts = array_merge($arrPosts, $pstPublic);
   }
-  return $arrPosts;
+  return array_slice($arrPosts, 0, $limitPaging*$page);
 }
 
 //FRIEND AREA
