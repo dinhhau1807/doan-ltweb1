@@ -1,4 +1,9 @@
 $(document).ready(function() {
+    function deleleMessage() {
+        const $this = $(this);
+        console.log($this.data('messageid'));
+    }
+
     //Custom time Post
     $('.custom-time').each((i,e) => {
         let timeOfPost =  new Date($(e)[0].innerHTML);
@@ -72,7 +77,8 @@ $(document).ready(function() {
                     const data = JSON.parse(res);
                     const messagesResult = data.map(message => {
                         return `<p class="message message-${+message.type === 0 ? 'right' : 'left'}">
-                                    <span class="content">${message.content}</span>
+                                    <span class="content order-${+message.type === 0 ? '1' : '0'}">${message.content}</span>
+                                    <span data-messageid=${message.id} class="delete-content order-${+message.type === 0 ? '0' : '1'}">&times;</span>
                                 </p>`
                     });
 
@@ -80,6 +86,8 @@ $(document).ready(function() {
 
                     //scroll to the last message
                     messages.find('.message:last-child')[0].scrollIntoView();
+
+                    $(".delete-content").click(deleleMessage);
                 }
             });
         }
@@ -107,7 +115,8 @@ $(document).ready(function() {
                     const data = JSON.parse(res);
                     if(data.success === true) {
                         messages.append(`<p class="message message-right">
-                                            <span class="content">${$input.value}</span>
+                                            <span class="content order-${+message.type === 0 ? '1' : '0'}">${$input.value}</span>
+                                            <span data-messageid=${message.id} class="delete-content order-${+message.type === 0 ? '0' : '1'}">&times;</span>
                                         </p>`);
 
                         //reset input
@@ -116,6 +125,8 @@ $(document).ready(function() {
 
                         //scroll to the last message
                         messages.find('.message:last-child')[0].scrollIntoView();
+
+                        $(".delete-content").click(deleleMessage);
                     }
                 }
             });
@@ -128,9 +139,10 @@ $(document).ready(function() {
             data: `touserid=${toUserId}`,
             success: function(res) {
                 const data = JSON.parse(res);
-                const messagesResult = data.map(message => {
+                const messagesResult = data.map(message => {                  
                     return `<p class="message message-${+message.type === 0 ? 'right' : 'left'}">
-                                <span class="content">${message.content}</span>
+                                <span class="content order-${+message.type === 0 ? '1' : '0'}">${message.content}</span>
+                                <span data-messageid=${message.id} class="delete-content order-${+message.type === 0 ? '0' : '1'}">&times;</span>
                             </p>`
                 });
 
@@ -138,6 +150,8 @@ $(document).ready(function() {
 
                 //scroll to the last message
                 messages.find('.message:last-child')[0].scrollIntoView();
+
+                $(".delete-content").click(deleleMessage);
             }
         });
     });
