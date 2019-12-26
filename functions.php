@@ -466,7 +466,6 @@ function sendMessage($userId1, $userId2, $content)
   $stmt->execute(array($userId1, $userId2, $content, 1, $newMessage['createdAt']));
 
 
-
   $options = array(
     'cluster' => 'ap1',
     'useTLS' => true
@@ -478,6 +477,7 @@ function sendMessage($userId1, $userId2, $content)
     $options
   );
 
+  
   $data['message'] = 'hello world';
   $data['userSend'] = $userId1;
   $pusher->trigger('messenger', 'newMessage', $data);

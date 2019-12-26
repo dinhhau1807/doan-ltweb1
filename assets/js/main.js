@@ -56,7 +56,8 @@ $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 
     //for message
-    $('.message-bar').on('click', function () {
+    $('.message-bar').off('click').on('click', function () {
+        const $this = $(this);
         const messageWrapper = $('#message-wrapper');
         const messages = $("#message-wrapper .messages");
         const closeMessageBox = $(messageWrapper.find('.close')[0]);
@@ -97,11 +98,29 @@ $(document).ready(function () {
             }
         });
 
-        closeMessageBox.on('click', function () {
+        closeMessageBox.off('click').on('click', function () {
             messageWrapper.removeClass('active');
+            $.ajax({
+                type: 'get',
+                url: './async/fetch-conversation.php',
+                data: `touserid=${toUserId}`,
+                success: function (res) {
+                    const data = JSON.parse(res);
+                    var lastMessage = data[data.length - 1];
+
+                    var $lastTime = $this.children().children().find('small');
+                    var $lastMessage = $this.children().children().find('p');
+
+                    var timeNow = new Date(Date.now());
+                    var timeLastMessage = new Date(lastMessage.createdAt);
+
+                    $lastTime.text(customTimePost(timeNow, timeLastMessage));
+                    $lastMessage.text(lastMessage.content);
+                }
+            });
         });
 
-        $("#message-form").on('submit', function (e) {
+        $("#message-form").off('submit').on('submit', function (e) {
             //get input element
             const $input = $(this).find('input[type=text]')[0];
 
