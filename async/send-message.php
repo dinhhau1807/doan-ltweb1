@@ -7,5 +7,6 @@ if (!$currentUser) {
 
 if (isset($_GET['touserid']) && isset($_GET['content'])) {
     sendMessage($currentUser['id'], $_GET['touserid'], $_GET['content']);
-    echo json_encode(array('success' => true));
+    $theLastestMessage = getMessagesWithUserId($currentUser['id'], $_GET['touserid']);
+    echo json_encode($theLastestMessage[count($theLastestMessage) - 1]);
 }
