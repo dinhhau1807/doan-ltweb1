@@ -72,13 +72,13 @@ $page = 'index';
 
 <!-- ADD LIKE -->
 <?php
-        if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
-            $userId = $_POST['currentUserId'];
-            $postLikeId = $_POST['postLikeId'];
-            addLike($userId, $postLikeId);
-            header("Location: index.php");
-        }
-        ?>
+    if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
+        $userId = $_POST['currentUserId'];
+        $postLikeId = $_POST['postLikeId'];
+        addLike($userId, $postLikeId);
+        header("Location: index.php");
+    }
+?>
 
 <!-- REMOVE LIKE -->
 <?php

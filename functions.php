@@ -202,11 +202,10 @@ function findAllPosts($userId, $page)
 
   $usr = $userId;
 
-  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt from ( SELECT * from posts where userId = ? union select * from posts where userId in (select userId2 from friendship where userID1= ?)
-  and (role = 2 or role = 1) 
-  ) p join users u on (p.userId = u.id) 
-    ORDER BY p.createdAt DESC LIMIT ". $limitPaging*$page);
-  $stmt->execute(array($userId, $usr));
+  $stmt = $db->prepare("SELECT  p.*,u.displayName,u.id as myImageID ,p.createdAt from ( SELECT * from posts where userId = ? union (select * from posts where userId in (select followingId from follows where followerId = ?) and role=1)
+  union (select * from posts where userId in (select f.followingId from follows f where followerId = ? and exists (select * from friendship where (userId1=? and userId2=f.followingId) or (userId2=? and userId1=f.followingId))) and role=2)  
+  ) p join users u on (p.userId = u.id) ORDER BY p.createdAt DESC LIMIT ". $limitPaging*$page);
+  $stmt->execute(array($userId, $userId, $userId, $userId, $userId)); 
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
 }
@@ -532,4 +531,30 @@ function getFriendNotFollowing($userId) {
 
   $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $friends;
+}
+// FOLLOW AREA
+function addFollow($followerId, $followingUserId)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO follows (followerId, followingId, followAt) VALUES (?, ?, ?)");
+  $stmt->execute(array($followerId, $followingUserId, $dateNow));
+  return $db->lastInsertId();
+}
+
+function removeFollow($followerId, $followingUserId)
+{
+  global $db;
+  $stmt = $db->prepare("DELETE FROM follows WHERE followerId=? and followingId=?");
+  $stmt->execute(array($followerId, $followingUserId));
+  return $stmt->execute(array($followerId, $followingUserId));
+}
+
+function wasFollow($currentUser, $followingUserId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM follows WHERE followerId=? and followingId=?");
+  $stmt->execute(array($currentUser, $followingUserId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
 }

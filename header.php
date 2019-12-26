@@ -24,6 +24,7 @@
                 <a href="./" class="navbar-brand text-light">
                     <h1 style="font-weight: 700;">Yolo</h1>
                 </a>
+                <?php if($currentUser): ?>
                 <!-- search box -->
                 <div class="search-box">
                     <form>
@@ -43,7 +44,6 @@
                 </div>
                 <!-- /search box -->
                 <div>
-                    <?php if ($currentUser) : ?>
                     <div class="d-flex justify-content-center align-items-center ml-auto">
                         <a data-toggle="tooltip" title="Thông tin cá nhân"
                             href="./profile.php?id=<?php echo $currentUser['id']; ?>"
@@ -68,8 +68,8 @@
                             </a>
                         </div>
                     </div>
-                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
             </div>
         </nav>
     </header>
