@@ -15,6 +15,7 @@ if (isset($_GET['id'])) {
 
 $isFollowing  = getFriendShip($currentUser['id'], $user['id']);
 $isFollower = getFriendShip($user['id'], $currentUser['id']);
+$allFriends = getFriendNotFollowing($userId2);
 ?>
 
 <?php include 'header.php' ?>
@@ -131,7 +132,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                         <span><?php echo $user['phoneNumber']; ?></span>
                     </li>
                     <?php endif; ?>
-                    <?php if ($user['phoneNumber'] != 0) : ?>
+                    <?php if ($user['yearOfBirth'] != 0) : ?>
                     <li>
                         <i class="fa fa-leaf"></i>
                         <span>Năm sinh <?php echo $user['yearOfBirth']; ?></span>
@@ -140,9 +141,6 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     <li>
                         <i class="fa fa-clock-o"></i>
                         <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd/m/Y'); ?></span>
-                    </li>
-                    <li>
-                        <?php echo '<img style="width:100%;height:200px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                     </li>
                 </ul>
             </div>
@@ -187,54 +185,35 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     </div>
                 </div>
             </div>
+
+
+
+            <!-- IN PROGRESS -->
             <div class="list-friend border w-100 p-3 mb-3">
                 <a class="text-dark" href="#">
                     <h5>
                         <i class="text-success fa fa-users"></i>
                         Bạn bè
-                        <span class="text-secondary" style="font-size:14px;">1.000 (1001 bạn chung)</span>
+                        <span class="text-secondary"
+                            style="font-size:14px;"><?php echo count($allFriends) > 0 ? count($allFriends) : ''; ?></span>
                     </h5>
                 </a>
                 <hr />
                 <div class="row text-center text-lg-left">
+                    <?php foreach ($allFriends as $friend): ?>
                     <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/pWkk7iiCoDM/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
+                        <a href="./profile.php?id=<?php echo $friend['id']; ?>" class="d-block mb-2 h-100">
+                            <?php echo '<img class="img-fluid" src="data:image/jpeg;base64,' . base64_encode($friend['avatarImage']) . '"/>'; ?>
+                            <p class="friend-name text-center"><?php echo $friend['displayName']; ?></p>
                         </a>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/aob0ukAYfuI/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/EUfxH-pze7s/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/M185_qYH8vg/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/sesveuG_rNo/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/AvhMzHwiE_0/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
+            <!-- IN PROGRESS -->
+
+
+
         </div>
         <div class="col-md-8">
             <?php
