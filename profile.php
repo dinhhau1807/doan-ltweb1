@@ -15,6 +15,7 @@ if (isset($_GET['id'])) {
 
 $isFollowing  = getFriendShip($currentUser['id'], $user['id']);
 $isFollower = getFriendShip($user['id'], $currentUser['id']);
+
 ?>
 
 <?php include 'header.php' ?>
@@ -25,6 +26,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
 <?php if (!$user) : ?>
 <p class="text-center font-weight-bold">RẤT TIẾC, NGƯỜI DÙNG NÀY KHÔNG TỒN TẠI!</p>
 <?php else : ?>
+
 <section id="timeline-top-section">
     <div class="background-image">
         <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($user['backgroundImage']) . '"/>'; ?>
@@ -98,10 +100,50 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                 </form>
                 <?php endif; ?>
                 <?php endif; ?>
-                <button class="btn btn-light">
+                <!-- <button class="btn btn-light">
                     <i class="fa fa-rss"></i>
                     Theo dõi
-                </button>
+                </button> -->
+
+
+                <!-- FOLLOW AREA-->
+                <?php
+                    if(isset($_POST['currentUserId']) && isset($_POST['followingUserId'])) {
+                        $followerUserId = $_POST['currentUserId'];
+                        $followingUserId = $_POST['followingUserId'];
+                        addFollow($followerUserId, $followingUserId);
+                        header("Location: profile.php?id=" . $_GET['id']);
+                    }
+                ?>
+
+                <!-- UNFOLLOW AREA -->
+                <?php
+                    if(isset($_POST['currentUserId']) && isset($_POST['unfollowingUserId'])) {
+                        $followerUserId = $_POST['currentUserId'];
+                        $unfollowingUserId = $_POST['unfollowingUserId'];
+                        removeFollow($followerUserId, $unfollowingUserId);
+                        header("Location: profile.php?id=" . $_GET['id']);
+                    }
+                ?>
+
+                <?php if (!wasFollow($currentUser['id'], $_GET['id'])): ?>
+                    <form method="POST" class="btn p-0">
+                        <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                        <input type="hidden" name="followingUserId" value="<?php echo $_GET['id']; ?>">
+                        <button type="submit" class="btn btn-light">
+                            <i class="fa fa-rss"></i> Theo dõi
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <form method="POST" class="btn p-0">
+                        <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                        <input type="hidden" name="unfollowingUserId" value="<?php echo $_GET['id']; ?>">
+                        <button type="submit" class="btn btn-light">
+                            <i class="fa fa-rss"></i> Huỷ theo dõi
+                        </button>
+                    </form>
+                <?php endif; ?>
+
             </div>
             <?php endif; ?>
         </div>
@@ -259,6 +301,8 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                 }
                 ?>
 
+
+            
             <!-- ADD LIKE -->
             <?php
                 if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
