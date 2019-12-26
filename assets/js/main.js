@@ -17,29 +17,29 @@ $(document).ready(function() {
     
         if (timePassed < msPerMinute) {
             if (Math.round(timePassed/1000) > 0) {
-                 return Math.round(timePassed/1000) + ' seconds ago';   
+                 return Math.round(timePassed/1000) + ' giây trước';   
             } else {
-                return 'Just now';
+                return 'Vừa xong';
             }
         }
         else if (timePassed < msPerHour) {
-             return Math.round(timePassed/msPerMinute) + ' minutes ago';   
+             return Math.round(timePassed/msPerMinute) + ' phút trước';   
         }
     
         else if (timePassed < msPerDay ) {
-             return Math.round(timePassed/msPerHour ) + ' hours ago';   
+             return Math.round(timePassed/msPerHour ) + ' giờ trước';   
         }
     
         else if (timePassed < msPerMonth) {
-            return Math.round(timePassed/msPerDay) + ' days ago';   
+            return Math.round(timePassed/msPerDay) + ' ngày trước';   
         }
     
         else if (timePassed < msPerYear) {
-            return Math.round(timePassed/msPerMonth) + ' months ago';   
+            return Math.round(timePassed/msPerMonth) + ' tháng trước';   
         }
     
         else {
-            return Math.round(timePassed/msPerYear ) + ' years ago';   
+            return Math.round(timePassed/msPerYear ) + ' năm trước';   
         }
     }
     //active tooltip
