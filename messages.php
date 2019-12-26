@@ -54,7 +54,7 @@ $conversations = getLatestConversations($currentUser['id']);
                 <?php echo '<img class="rounded-circle" style="width:100px;height:100px;" src="data:image/jpeg;base64,' . base64_encode($conversation['avatarImage']) . '"/>'; ?>
                 <div class="d-inline-block text-success pl-2">
                     <h5 class="mb-2"><?php echo $conversation['displayName'] ?></h5>
-                    <small>Tin nhắn cuối: <?php echo $conversation['lastMessage']['createdAt'] ?></small>
+                    <small class="custom-time">Tin nhắn cuối: <?php echo $conversation['lastMessage']['createdAt'] ?></small>
                     <!-- should use subString that paragraph -->
                     <p class="text-secondary"><?php echo $conversation['lastMessage']['content']; ?></p>
                 </div>

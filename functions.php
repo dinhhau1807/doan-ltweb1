@@ -467,8 +467,7 @@ function sendMessage($userId1, $userId2, $content)
   $stmt = $db->prepare("INSERT INTO messages (toUserId, fromUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
   $stmt->execute(array($userId1, $userId2, $content, 1, $newMessage['createdAt']));
 
-  
-  
+
   $options = array(
     'cluster' => 'ap1',
     'useTLS' => true
@@ -480,8 +479,9 @@ function sendMessage($userId1, $userId2, $content)
     $options
   );
 
+  
   $data['message'] = 'hello world';
-  $data['userSend']= $userId1;
+  $data['userSend'] = $userId1;
   $pusher->trigger('messenger', 'newMessage', $data);
 
   if ($enableSendNotification) {
@@ -489,7 +489,7 @@ function sendMessage($userId1, $userId2, $content)
     $user1 = findUserById($userId1);
     $user2 = findUserById($userId2);
 
-    $message = strlen($newMessage['content']) > 30 ? substr($newMessage['content'], 0, 30)."..." : $newMessage['content'];
+    $message = strlen($newMessage['content']) > 30 ? substr($newMessage['content'], 0, 30) . "..." : $newMessage['content'];
     $linkMessage = "<a href='$BASE_URL/messages.php'>ĐÂY</a>";
     $user1Link = "<a href='$BASE_URL/profile.php?id=$userId1'>{$user1['displayName']}</a>";
     $bodyContent = "Bạn vừa mới nhận được một tin nhắn mới từ người bạn: $user1Link! <br />
@@ -499,6 +499,13 @@ function sendMessage($userId1, $userId2, $content)
 
     sendEmail($user2['email'], $user2['displayName'], 'Tin nhắn mới', $bodyContent, 'Tin nhắn');
   }
+}
+
+function deleteMessage($messageId)
+{
+  global $db;
+  $stmt = $db->prepare("DELETE FROM messages WHERE id=?");
+  return $stmt->execute(array($messageId));
 }
 
 //LINH: Custom Func get friend for message (Shouldn't change)

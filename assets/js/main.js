@@ -1,7 +1,20 @@
 $(document).ready(function () {
     function deleleMessage() {
+        // delete message content
         const $this = $(this);
         console.log($this.data('messageid'));
+
+        $.ajax({
+            type: 'post',
+            url: './async/delete-message.php',
+            data: `messageid=${$this.data('messageid')}`,
+            success: function (res) {
+                const message = JSON.parse(res);
+                if (message.success == true) {
+                    $this.parent().remove();
+                }
+            }
+        });
     }
 
     //Custom time Post
@@ -10,6 +23,7 @@ $(document).ready(function () {
         let timeOfNow = new Date();
         $(e)[0].innerHTML = customTimePost(timeOfNow, timeOfPost);
     })
+
     function customTimePost(current, previous) {
         var msPerMinute = 60 * 1000;
         var msPerHour = msPerMinute * 60;
@@ -26,24 +40,15 @@ $(document).ready(function () {
             } else {
                 return 'Vừa xong';
             }
-        }
-        else if (timePassed < msPerHour) {
+        } else if (timePassed < msPerHour) {
             return Math.round(timePassed / msPerMinute) + ' phút trước';
-        }
-
-        else if (timePassed < msPerDay) {
+        } else if (timePassed < msPerDay) {
             return Math.round(timePassed / msPerHour) + ' giờ trước';
-        }
-
-        else if (timePassed < msPerMonth) {
+        } else if (timePassed < msPerMonth) {
             return Math.round(timePassed / msPerDay) + ' ngày trước';
-        }
-
-        else if (timePassed < msPerYear) {
+        } else if (timePassed < msPerYear) {
             return Math.round(timePassed / msPerMonth) + ' tháng trước';
-        }
-
-        else {
+        } else {
             return Math.round(timePassed / msPerYear) + ' năm trước';
         }
     }
@@ -51,7 +56,8 @@ $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 
     //for message
-    $('.message-bar').on('click', function () {
+    $('.message-bar').off('click').on('click', function () {
+        const $this = $(this);
         const messageWrapper = $('#message-wrapper');
         const messages = $("#message-wrapper .messages");
         const closeMessageBox = $(messageWrapper.find('.close')[0]);
@@ -92,11 +98,29 @@ $(document).ready(function () {
             }
         });
 
-        closeMessageBox.on('click', function () {
+        closeMessageBox.off('click').on('click', function () {
             messageWrapper.removeClass('active');
+            $.ajax({
+                type: 'get',
+                url: './async/fetch-conversation.php',
+                data: `touserid=${toUserId}`,
+                success: function (res) {
+                    const data = JSON.parse(res);
+                    var lastMessage = data[data.length - 1];
+
+                    var $lastTime = $this.children().children().find('small');
+                    var $lastMessage = $this.children().children().find('p');
+
+                    var timeNow = new Date(Date.now());
+                    var timeLastMessage = new Date(lastMessage.createdAt);
+
+                    $lastTime.text(customTimePost(timeNow, timeLastMessage));
+                    $lastMessage.text(lastMessage.content);
+                }
+            });
         });
 
-        $("#message-form").on('submit', function (e) {
+        $("#message-form").off('submit').on('submit', function (e) {
             //get input element
             const $input = $(this).find('input[type=text]')[0];
 

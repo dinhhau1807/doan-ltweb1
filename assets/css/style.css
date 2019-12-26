@@ -224,6 +224,7 @@ header {
 
 .message > span.content {
   display: inline-block;
+  word-wrap: break-word;
   max-width: 255px;
   padding: 6px 12px;
   border-radius: 16px;
