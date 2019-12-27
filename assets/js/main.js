@@ -177,6 +177,33 @@ $(document).ready(function () {
         });
     });
 
+    //for like
+    $('.btn-like').off('click').on('click', function() {
+        const $this = $(this);
+        const userId = $this.data('currentuserid');
+        const postId = $this.data('postid');
+        
+        $.ajax({
+            type: 'get',
+            url: './async/act-like.php',
+            data: `userId=${userId}&postId=${postId}`,
+            success: function (res) {
+                const data = JSON.parse(res);
+                const like = data.like;
+                const countLike = data.countLike;
+
+                if(like) {
+                    $this.html('<i class="fa fa-thumbs-up"></i> Bỏ thích');
+                } else {
+                    $this.html('<i class="fa fa-thumbs-o-up"></i> Thích');
+                }
+
+                const $countLike = $($this.parents('.card').find('.card-body').find('.react-info').find('.like-count')[0]);
+                $countLike.html(`<i class="fa fa-thumbs-up"></i> ${countLike} lượt thích`);
+            }
+        });
+    });
+
     //for comment
     const $commentButton = $(".btn-comment");
     const $commentForm = $(".comment-form");
