@@ -25,16 +25,17 @@
                     <h1 style="font-weight: 700;">Yolo</h1>
                 </a>
                 <?php if($currentUser): ?>
+                
                 <!-- search box -->
                 <div class="search-box">
-                    <form>
+                    <form action="search.php" method="POST">
                         <div class="content-input">
                             <div class="row">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Tìm kiếm bạn bè..." />
+                                    <input name="keyword" type="text" class="form-control" placeholder="Tìm kiếm bạn bè..." />
                                     <div class="input-group-append">
                                         <button class="btn btn-light" type="submit">
-                                            <i class="fa fa-search"></i>
+                                            <a href="search.php"><i class="fa fa-search"></i></a></a>
                                         </button>
                                     </div>
                                 </div>

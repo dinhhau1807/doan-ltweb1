@@ -334,6 +334,13 @@ body > .container {
   transform-origin: center;
 } 
 
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
 @keyframes heartbeat{
   to {
       transform: scale(1.4); 

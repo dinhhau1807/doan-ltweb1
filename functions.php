@@ -568,3 +568,12 @@ function wasFollow($currentUser, $followingUserId)
   $stmt->execute(array($currentUser, $followingUserId));
   return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
+// SEARCH AREA
+function searchUserByName($name)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM users WHERE displayName LIKE ? LIMIT 100");
+  $stmt->execute(array('%'.$name.'%'));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
