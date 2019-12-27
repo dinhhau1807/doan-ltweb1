@@ -8,10 +8,10 @@ include 'header.php';
 $users = null;
 ?>
 <?php
-if ($_SERVER['REQUEST_METHOD'] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $success = true;
-    if (isset($_POST['keyword'])) {
-        $users = searchUsers((!isset($_POST['keyword']) ? null : $_POST['keyword']));
+    if (isset($_GET['keyword'])) {
+        $users = searchUsers((!isset($_GET['keyword']) ? null : $_GET['keyword']));
     }
     if ($users==null){
         $success = false;
