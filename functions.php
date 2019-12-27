@@ -11,7 +11,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-$enableSendNotification = false;
+$enableSendNotification = true;
 
 function detectPage()
 {
@@ -456,6 +456,11 @@ function getMessagesWithUserId($fromUserId, $toUserId)
 function sendMessage($userId1, $userId2, $content)
 {
   global $db, $enableSendNotification, $BASE_URL;
+
+  $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ?");
+  $stmt->execute(array($userId1));
+  $check = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
   date_default_timezone_set("Asia/Ho_Chi_Minh");
   $dateNow = date("Y-m-d H:i:s");
   $stmt = $db->prepare("INSERT INTO messages (fromUserId, toUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
@@ -487,7 +492,7 @@ function sendMessage($userId1, $userId2, $content)
   $data['userSend'] = $userId1;
   $pusher->trigger('messenger', 'newMessage', $data);
 
-  if ($enableSendNotification) {
+  if ($enableSendNotification && count($check) == 0) {
     // Send email notification to userId2
     $user1 = findUserById($userId1);
     $user2 = findUserById($userId2);
