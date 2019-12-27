@@ -6,7 +6,7 @@ if (!$currentUser) {
 }
 if (isset($_POST['userId']) && isset($_POST['content'])) {
     sendMessage($currentUser['id'], $_POST['userId'], $_POST['content']);
-    header('Location: conversation.php?id=' . $_POST['userId']);
+    header('Location: messages.php');
 }
 $friends = getFriends($currentUser['id']);
 ?>
@@ -18,16 +18,16 @@ $friends = getFriends($currentUser['id']);
                 <h5><label style="font-weight:bolder;" for="userId">Người nhận: </label></h5>
                 <select class="form-control" id="userId" name="userId">
                     <?php foreach ($friends as $friend) : ?>
-                        <?php
+                    <?php
                         $user = findUserById($friend['id']);
                         ?>
-                        <option value="<?php echo $user['id'] ?>"><?php echo $user['displayName'] ?></option>
+                    <option value="<?php echo $user['id'] ?>"><?php echo $user['displayName'] ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-group">
                 <h5><label style="font-weight:bolder;" for="content">Tin nhắn: </label></h5>
-                <textarea class="form-control" id="content" name="content" rows="3"></textarea>
+                <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
             </div>
             <button type="submit" class="btn btn-success"><i class="far fa-share-square"></i> Gửi</button>
         </form>

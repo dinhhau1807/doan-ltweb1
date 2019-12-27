@@ -59,9 +59,23 @@ $(document).ready(function () {
     $('.message-bar').off('click').on('click', function () {
         const $this = $(this);
         const messageWrapper = $('#message-wrapper');
-        const messages = $("#message-wrapper .messages");
         const closeMessageBox = $(messageWrapper.find('.close')[0]);
+        const messages = $("#message-wrapper .messages");
         const toUserId = $(this).data('touserid');
+        const toUserName = $('#toUserName');
+        const toUserImage = $('#toUserImage');
+
+        $.ajax({
+            type: 'get',
+            url: './async/get-user.php',
+            data: `userId=${toUserId}`,
+            success: function (res) {
+                const data = JSON.parse(res);
+                toUserName.text(data.name);
+                toUserImage.attr('src', "data:image/jpeg;base64,"+data.image);
+            }
+        });
+
         messageWrapper.addClass('active');
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true;
