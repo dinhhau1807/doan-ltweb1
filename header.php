@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="./assets/css/style.css">
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://js.pusher.com/5.0/pusher.min.js"></script>
 </head>
 
 <body>
@@ -25,17 +23,18 @@
                     <h1 style="font-weight: 700;">Yolo</h1>
                 </a>
                 <?php if($currentUser): ?>
-                
+
                 <!-- search box -->
                 <div class="search-box">
                     <form action="search.php" method="POST">
                         <div class="content-input">
                             <div class="row">
                                 <div class="input-group">
-                                    <input name="keyword" type="text" class="form-control" placeholder="Tìm kiếm bạn bè..." />
+                                    <input name="keyword" type="text" class="form-control"
+                                        placeholder="Tìm kiếm bạn bè..." />
                                     <div class="input-group-append">
                                         <button class="btn btn-light" type="submit">
-                                            <a href="search.php"><i class="fa fa-search"></i></a></a>
+                                            <a class="text-dark" href="search.php"><i class="fa fa-search"></i></a></a>
                                         </button>
                                     </div>
                                 </div>
