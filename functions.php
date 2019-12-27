@@ -13,16 +13,6 @@ use PHPMailer\PHPMailer\Exception;
 
 $enableSendNotification = true;
 
-function detectPage()
-{
-  $uri = $_SERVER['REQUEST_URI'];
-  $parts = explode('/', $uri);
-  $fileName = $parts[2];
-  $parts = explode('.', $fileName);
-  $page = $parts[0];
-  return $page;
-}
-
 function findUserByEmail($email)
 {
   global $db;
@@ -572,4 +562,13 @@ function wasFollow($currentUser, $followingUserId)
   $stmt = $db->prepare("SELECT * FROM follows WHERE followerId=? and followingId=?");
   $stmt->execute(array($currentUser, $followingUserId));
   return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// SEARCH AREA
+function searchUserByName($name)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM users WHERE displayName LIKE ? LIMIT 100");
+  $stmt->execute(array('%'.$name.'%'));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

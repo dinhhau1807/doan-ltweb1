@@ -1,6 +1,5 @@
 <?php
 require_once 'init.php';
-$page = 'index';
 ?>
 <?php include 'header.php' ?>
 <?php if (!$currentUser) : ?>
@@ -150,7 +149,7 @@ $page = 'index';
                         <div class="img-square-wrapper mr-2">
                             <a href="#">
                                 <img class="rounded-circle" style="width:50px;height:50px;"
-                                    src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>"
+                                    src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userPost['id'] ?>"
                                     alt="<?php echo $userPost['displayName'] ?>">
                             </a>
                         </div>

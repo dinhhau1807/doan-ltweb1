@@ -6,10 +6,13 @@ if (!$currentUser) {
 }
 $friendRequest = getFriendRequest($currentUser['id']);
 ?>
+
+
 <?php include 'header.php' ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 
 <div>
     <div class="friend-request">
