@@ -27,7 +27,7 @@ $friends = getFriends($currentUser['id']);
             </div>
             <div class="form-group">
                 <h5><label style="font-weight:bolder;" for="content">Tin nhắn: </label></h5>
-                <textarea class="form-control" id="content" name="content" rows="3"></textarea>
+                <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
             </div>
             <button type="submit" class="btn btn-success"><i class="far fa-share-square"></i> Gửi</button>
         </form>
