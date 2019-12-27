@@ -6,7 +6,17 @@ if (!$currentUser) {
 }
 
 $userId2 = $_GET['id'];
-$newFeeds = showPosts($currentUser['id'], $userId2);
+$newFeeds = array();
+
+if(isset($_GET['page'])) {
+    $newFeeds = showPosts($currentUser['id'], $userId2, $_GET['page']);
+    $page = (int)$_GET['page'] + 1;
+}
+else {
+    $newFeeds = showPosts($currentUser['id'], $userId2, 1);
+    $page = 2;
+}
+
 if (isset($_GET['id'])) {
     $user = findUserById($_GET['id']);
 } else {
@@ -15,6 +25,7 @@ if (isset($_GET['id'])) {
 
 $isFollowing  = getFriendShip($currentUser['id'], $user['id']);
 $isFollower = getFriendShip($user['id'], $currentUser['id']);
+$allFriends = getFriends($userId2);
 ?>
 
 <?php include 'header.php' ?>
@@ -25,6 +36,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
 <?php if (!$user) : ?>
 <p class="text-center font-weight-bold">RẤT TIẾC, NGƯỜI DÙNG NÀY KHÔNG TỒN TẠI!</p>
 <?php else : ?>
+
 <section id="timeline-top-section">
     <div class="background-image">
         <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($user['backgroundImage']) . '"/>'; ?>
@@ -98,10 +110,46 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                 </form>
                 <?php endif; ?>
                 <?php endif; ?>
-                <button class="btn btn-light">
-                    <i class="fa fa-rss"></i>
-                    Theo dõi
-                </button>
+
+
+                <!-- FOLLOW AREA-->
+                <?php
+                    if(isset($_POST['currentUserId']) && isset($_POST['followingUserId'])) {
+                        $followerUserId = $_POST['currentUserId'];
+                        $followingUserId = $_POST['followingUserId'];
+                        addFollow($followerUserId, $followingUserId);
+                        header("Location: profile.php?id=" . $_GET['id']);
+                    }
+                ?>
+
+                <!-- UNFOLLOW AREA -->
+                <?php
+                    if(isset($_POST['currentUserId']) && isset($_POST['unfollowingUserId'])) {
+                        $followerUserId = $_POST['currentUserId'];
+                        $unfollowingUserId = $_POST['unfollowingUserId'];
+                        removeFollow($followerUserId, $unfollowingUserId);
+                        header("Location: profile.php?id=" . $_GET['id']);
+                    }
+                ?>
+
+                <?php if (!wasFollow($currentUser['id'], $_GET['id'])): ?>
+                <form method="POST" class="btn p-0">
+                    <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                    <input type="hidden" name="followingUserId" value="<?php echo $_GET['id']; ?>">
+                    <button type="submit" class="btn btn-light">
+                        <i class="fa fa-rss"></i> Theo dõi
+                    </button>
+                </form>
+                <?php else: ?>
+                <form method="POST" class="btn p-0">
+                    <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
+                    <input type="hidden" name="unfollowingUserId" value="<?php echo $_GET['id']; ?>">
+                    <button type="submit" class="btn btn-light">
+                        <i class="fa fa-rss"></i> Huỷ theo dõi
+                    </button>
+                </form>
+                <?php endif; ?>
+
             </div>
             <?php endif; ?>
         </div>
@@ -131,7 +179,7 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                         <span><?php echo $user['phoneNumber']; ?></span>
                     </li>
                     <?php endif; ?>
-                    <?php if ($user['phoneNumber'] != 0) : ?>
+                    <?php if ($user['yearOfBirth'] != 0) : ?>
                     <li>
                         <i class="fa fa-leaf"></i>
                         <span>Năm sinh <?php echo $user['yearOfBirth']; ?></span>
@@ -140,9 +188,6 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     <li>
                         <i class="fa fa-clock-o"></i>
                         <span>Đã tham gia <?php echo date_format(date_create($user['createdDate']), 'd/m/Y'); ?></span>
-                    </li>
-                    <li>
-                        <?php echo '<img style="width:100%;height:200px;" src="data:image/jpeg;base64,' . base64_encode($user['avatarImage']) . '"/>'; ?>
                     </li>
                 </ul>
             </div>
@@ -187,54 +232,29 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     </div>
                 </div>
             </div>
+
             <div class="list-friend border w-100 p-3 mb-3">
                 <a class="text-dark" href="#">
                     <h5>
                         <i class="text-success fa fa-users"></i>
                         Bạn bè
-                        <span class="text-secondary" style="font-size:14px;">1.000 (1001 bạn chung)</span>
+                        <span class="text-secondary"
+                            style="font-size:14px;"><?php echo count($allFriends) > 0 ? count($allFriends) : ''; ?></span>
                     </h5>
                 </a>
                 <hr />
                 <div class="row text-center text-lg-left">
+                    <?php foreach ($allFriends as $friend): ?>
                     <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/pWkk7iiCoDM/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
+                        <a href="./profile.php?id=<?php echo $friend['id']; ?>" class="d-block mb-2 h-100">
+                            <?php echo '<img class="img-fluid" src="data:image/jpeg;base64,' . base64_encode($friend['avatarImage']) . '"/>'; ?>
+                            <p class="friend-name text-center"><?php echo $friend['displayName']; ?></p>
                         </a>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/aob0ukAYfuI/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/EUfxH-pze7s/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/M185_qYH8vg/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/sesveuG_rNo/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-6">
-                        <a href="#" class="d-block mb-2 h-100">
-                            <img class="img-fluid" src="https://source.unsplash.com/AvhMzHwiE_0/400x300" alt="">
-                            <p class="friend-name text-center">Ng van a</p>
-                        </a>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
+
         </div>
         <div class="col-md-8">
             <?php
@@ -258,6 +278,8 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     }
                 }
                 ?>
+
+
 
             <!-- ADD LIKE -->
             <?php
@@ -348,8 +370,8 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                                     width='20' />
                                             </h5>
                                         </a>
-                                        <small class="text-muted">Đăng lúc:
-                                            <?php echo $post['createdAt']; ?> -
+                                        <small class="text-muted">
+                                            <i class="custom-time"><?php echo $post['createdAt']; ?></i> ·
                                             <?php if ($user['id'] != $currentUser['id']) : ?>
                                             <i title="<?php if ($post['role'] == 1) echo 'Công khai';
                                                                     elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
@@ -396,10 +418,10 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                                         alt="<?php echo $post['id'] ?>" class="img-fluid w-100">
                                 </figure>
                                 <?php endif; ?>
-                                <div class="d-flex justify-content-between">
-                                    <div>
+                                <div class="react-info d-flex justify-content-between">
+                                    <div class="like-count">
                                         <span>
-                                            <i class="text-success fa fa-thumbs-o-up"></i>
+                                            <i class="fa fa-thumbs-up"></i>
                                             <?php echo countLike($post['id']); ?> lượt thích
                                         </span>
                                     </div>
@@ -410,30 +432,18 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                             </div>
                             <div class="card-footer bg-transparent">
                                 <div class="d-flex react-group">
-                                    <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
-                                    <form method="POST" class="hover-secondary w-100 text-center">
-                                        <input type="hidden" name="currentUserId"
-                                            value="<?php echo $currentUser['id']; ?>">
-                                        <input type="hidden" name="postLikeId" value="<?php echo $post['id']; ?>">
-                                        <button type="submit"
-                                            class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
-                                            <i class="fa fa-thumbs-o-up"></i> Thích
-                                        </button>
-                                    </form>
-                                    <?php else: ?>
-                                    <form method="POST" class="hover-secondary w-100 text-center">
-                                        <input type="hidden" name="currentUserId"
-                                            value="<?php echo $currentUser['id']; ?>">
-                                        <input type="hidden" name="postUnlikeId" value="<?php echo $post['id']; ?>">
-                                        <button type="submit"
-                                            class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
-                                            <i class="fa fa-thumbs-up"></i> Bỏ thích
-                                        </button>
-                                    </form>
-                                    <?php endif; ?>
                                     <div class="hover-secondary w-100 text-center">
-                                        <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận
+                                        <p data-currentuserid="<?php echo $currentUser['id']; ?>"
+                                            data-postid="<?php echo $post['id']; ?>" class="btn-like px-3 py-2">
+                                            <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
+                                            <i class="fa fa-thumbs-o-up"></i> Thích
+                                            <?php else: ?>
+                                            <i class="fa fa-thumbs-up"></i> Bỏ thích
+                                            <?php endif; ?>
                                         </p>
+                                    </div>
+                                    <div class="hover-secondary w-100 text-center">
+                                        <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận</p>
                                     </div>
                                 </div>
                                 <!-- SHOW COMMENT POST -->
@@ -478,6 +488,15 @@ $isFollower = getFriendShip($user['id'], $currentUser['id']);
                     </div>
                 </div>
                 <?php endforeach; ?>
+                <?php if (count($newFeeds) != 0): ?>
+                <div class="load-more text-center pt-5">
+                    <form method="GET">
+                        <input type="hidden" value="<?php echo $userId2; ?>" name="id" />
+                        <input type="hidden" value="<?php echo $page; ?>" name="page" />
+                        <button type="submit" class="btn btn-outline-success">Tải thêm trạng thái</button>
+                    </form>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 </section>

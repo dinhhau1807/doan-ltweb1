@@ -12,5 +12,6 @@ if (isset($_POST['id'])) {
 }
 
 sendFriendRequest($currentUser['id'], $user['id']);
+addFollow($currentUser['id'], $user['id']);
 
 header("Location: profile.php?id={$user['id']}");

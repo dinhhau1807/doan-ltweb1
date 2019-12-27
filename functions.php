@@ -1,5 +1,4 @@
 <?php
-
 // Load Composer's autoloader
 require 'vendor/autoload.php';
 
@@ -12,17 +11,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-$enableSendNotification = false;
-
-function detectPage()
-{
-  $uri = $_SERVER['REQUEST_URI'];
-  $parts = explode('/', $uri);
-  $fileName = $parts[2];
-  $parts = explode('.', $fileName);
-  $page = $parts[0];
-  return $page;
-}
+$enableSendNotification = true;
 
 function findUserByEmail($email)
 {
@@ -87,6 +76,15 @@ function createUser($displayName, $email, $password, $avatar, $background)
     . "Hoặc click vào <a href='$BASE_URL/activate.php?code=$code' target='_blank'>ĐÂY</a> để kích hoạt!";
   sendEmail($email, $displayName, 'Kích hoạt tài khoản', $bodyContent, 'Xác nhận mã');
   return $id;
+}
+
+function updateLoginTime($userId)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("UPDATE users SET lastLogin=? WHERE id=?");
+  return $stmt->execute(array($dateNow, $userId));
 }
 
 function generateRandomString($length = 10)
@@ -196,23 +194,26 @@ function createPost($userID, $Content, $image, $role)
   return $db->lastInsertId();
 }
 
-function findAllPosts($userId)
+function findAllPosts($userId, $page)
 {
-  $usr = $userId;
+  global $limitPaging;
   global $db;
-  $stmt = $db->prepare("SELECT  p.*,u.displayName,u.id as myImageID ,p.createdAt from ( SELECT * from posts where userId = ? union select * from posts where userId in (select userId2 from friendship where userID1= ?)
-  and (role = 2 or role = 1) 
-  ) p join users u on (p.userId = u.id) 
-    ORDER BY p.createdAt DESC");
-  $stmt->execute(array($userId, $usr));
+
+  $usr = $userId;
+
+  $stmt = $db->prepare("SELECT  p.*,u.displayName,u.id as myImageID ,p.createdAt from ( SELECT * from posts where userId = ? union (select * from posts where userId in (select followingId from follows where followerId = ?) and role=1)
+  union (select * from posts where userId in (select f.followingId from follows f where followerId = ? and exists (select * from friendship where (userId1=? and userId2=f.followingId) or (userId2=? and userId1=f.followingId))) and role=2)  
+  ) p join users u on (p.userId = u.id) ORDER BY p.createdAt DESC LIMIT ". $limitPaging*$page);
+  $stmt->execute(array($userId, $userId, $userId, $userId, $userId)); 
   $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   return $posts;
 }
 
-function postsById($userId)
+function postsById($userId, $page)
 {
+  global $limitPaging;
   global $db;
-  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? ORDER BY p.createdAt DESC");
+  $stmt = $db->prepare("SELECT p.*,u.displayName,u.id as myImageID ,p.createdAt FROM posts as p left join users as u on p.userId = u.id WHERE p.userId = ? ORDER BY p.createdAt DESC LIMIT ". ($page*$limitPaging));
   $stmt->execute(array($userId));
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -244,10 +245,12 @@ function postsFriend($userId)
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 //Show post with relationship.
-function showPosts($userId1, $userId2)
+function showPosts($userId1, $userId2, $page)
 {
+  global $limitPaging;
+
   if ($userId1 == $userId2) {
-    return postsById($userId1);
+    return postsById($userId1, $page);
   }
   $user1 = findUserById($userId1);
   $user2 = findUserById($userId2);
@@ -268,7 +271,7 @@ function showPosts($userId1, $userId2)
     $pstPublic = postsPublic($userId2);
     $arrPosts = array_merge($arrPosts, $pstPublic);
   }
-  return $arrPosts;
+  return array_slice($arrPosts, 0, $limitPaging*$page);
 }
 
 //FRIEND AREA
@@ -452,6 +455,11 @@ function getMessagesWithUserId($fromUserId, $toUserId)
 function sendMessage($userId1, $userId2, $content)
 {
   global $db, $enableSendNotification, $BASE_URL;
+
+  $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ?");
+  $stmt->execute(array($userId1));
+  $check = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
   date_default_timezone_set("Asia/Ho_Chi_Minh");
   $dateNow = date("Y-m-d H:i:s");
   $stmt = $db->prepare("INSERT INTO messages (fromUserId, toUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
@@ -466,12 +474,29 @@ function sendMessage($userId1, $userId2, $content)
   $stmt = $db->prepare("INSERT INTO messages (toUserId, fromUserId, content, type, createdAt) VALUE (?, ?, ?, ?, ?)");
   $stmt->execute(array($userId1, $userId2, $content, 1, $newMessage['createdAt']));
 
-  if ($enableSendNotification) {
+
+  $options = array(
+    'cluster' => 'ap1',
+    'useTLS' => true
+  );
+  $pusher = new Pusher\Pusher(
+    '2d930b15cfe94002c0c7',
+    '6d0b5d9e853b36b66568',
+    '922524',
+    $options
+  );
+
+  
+  $data['message'] = 'hello world';
+  $data['userSend'] = $userId1;
+  $pusher->trigger('messenger', 'newMessage', $data);
+
+  if ($enableSendNotification && count($check) == 0) {
     // Send email notification to userId2
     $user1 = findUserById($userId1);
     $user2 = findUserById($userId2);
 
-    $message = strlen($newMessage['content']) > 30 ? substr($newMessage['content'], 0, 30)."..." : $newMessage['content'];
+    $message = strlen($newMessage['content']) > 30 ? substr($newMessage['content'], 0, 30) . "..." : $newMessage['content'];
     $linkMessage = "<a href='$BASE_URL/messages.php'>ĐÂY</a>";
     $user1Link = "<a href='$BASE_URL/profile.php?id=$userId1'>{$user1['displayName']}</a>";
     $bodyContent = "Bạn vừa mới nhận được một tin nhắn mới từ người bạn: $user1Link! <br />
@@ -481,6 +506,13 @@ function sendMessage($userId1, $userId2, $content)
 
     sendEmail($user2['email'], $user2['displayName'], 'Tin nhắn mới', $bodyContent, 'Tin nhắn');
   }
+}
+
+function deleteMessage($messageId)
+{
+  global $db;
+  $stmt = $db->prepare("DELETE FROM messages WHERE id=?");
+  return $stmt->execute(array($messageId));
 }
 
 //LINH: Custom Func get friend for message (Shouldn't change)
@@ -504,4 +536,48 @@ function getFriends($userId)
     }
   }
   return $friends;
+}
+
+function getFriendNotFollowing($userId) {
+  global $db;
+  $stmt = $db->prepare("SELECT u.* FROM friendship as f join users as u WHERE f.userId1 = ? and f.userId2 = u.id");
+  $stmt->execute(array($userId));
+
+  $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $friends;
+}
+// FOLLOW AREA
+function addFollow($followerId, $followingUserId)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("INSERT INTO follows (followerId, followingId, followAt) VALUES (?, ?, ?)");
+  $stmt->execute(array($followerId, $followingUserId, $dateNow));
+  return $db->lastInsertId();
+}
+
+function removeFollow($followerId, $followingUserId)
+{
+  global $db;
+  $stmt = $db->prepare("DELETE FROM follows WHERE followerId=? and followingId=?");
+  $stmt->execute(array($followerId, $followingUserId));
+  return $stmt->execute(array($followerId, $followingUserId));
+}
+
+function wasFollow($currentUser, $followingUserId)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM follows WHERE followerId=? and followingId=?");
+  $stmt->execute(array($currentUser, $followingUserId));
+  return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// SEARCH AREA
+function searchUserByName($name)
+{
+  global $db;
+  $stmt = $db->prepare("SELECT * FROM users WHERE displayName LIKE ? LIMIT 100");
+  $stmt->execute(array('%'.$name.'%'));
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

@@ -1,6 +1,5 @@
 <?php
 require_once 'init.php';
-$page = 'index';
 ?>
 <?php include 'header.php' ?>
 <?php if (!$currentUser) : ?>
@@ -38,7 +37,16 @@ $page = 'index';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <?php
-    $newFeeds = findAllPosts($currentUser['id']);
+    $newFeeds = array();
+    if(isset($_GET['page'])) {
+        $newFeeds = findAllPosts($currentUser['id'], $_GET['page']);
+        $page = (int)$_GET['page'] + 1;
+    }
+    else {
+        $newFeeds = findAllPosts($currentUser['id'], 1);
+        $page = 2;
+    }
+
     $success = true;
     if (isset($_POST['content'])) {
         $content = $_POST['content'];
@@ -59,26 +67,6 @@ $page = 'index';
             exit();
         }
     }
-    ?>
-
-<!-- ADD LIKE -->
-<?php
-        if (isset($_POST['currentUserId']) && isset($_POST['postLikeId'])) {
-            $userId = $_POST['currentUserId'];
-            $postLikeId = $_POST['postLikeId'];
-            addLike($userId, $postLikeId);
-            header("Location: index.php");
-        }
-        ?>
-
-<!-- REMOVE LIKE -->
-<?php
-        if (isset($_POST['currentUserId']) && isset($_POST['postUnlikeId'])) {
-            $userId = $_POST['currentUserId'];
-            $postUnlikeId = $_POST['postUnlikeId'];
-            removeLike($userId, $postUnlikeId);
-            header("Location: index.php");
-        }
     ?>
 
 <?php
@@ -115,7 +103,7 @@ $page = 'index';
                         <input type="file" id="postImage" name="postImage" />
                     </div>
                     <div class="form-group m-0">
-                        <div class="select-privacy">
+                        <div style="max-width: 200px; margin: 4px 0;" class="select-privacy">
                             <select class="form-control" id="role" name="role">
                                 <option value="1">Công khai</option>
                                 <option value="2">Bạn bè</option>
@@ -141,7 +129,7 @@ $page = 'index';
                         <div class="img-square-wrapper mr-2">
                             <a href="#">
                                 <img class="rounded-circle" style="width:50px;height:50px;"
-                                    src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $post['userId'] ?>"
+                                    src="<?php echo empty($userPost['avatarImage']) ? './assets/images/default-avatar.jpg' : 'view-image.php?userId=' . $userPost['id'] ?>"
                                     alt="<?php echo $userPost['displayName'] ?>">
                             </a>
                         </div>
@@ -151,8 +139,8 @@ $page = 'index';
                                         src='https://i.imgur.com/l63JR5Q.png' title=' Verified profile ' width='20' />
                                 </h5>
                             </a>
-                            <small class="text-muted">Đăng lúc:
-                                <?php echo $post['createdAt']; ?> ·
+                            <small class="text-muted">
+                                <i class="custom-time"><?php echo $post['createdAt']; ?></i> ·
                                 <?php if ($userPost['id'] != $currentUser['id']) : ?>
                                 <i title="<?php if ($post['role'] == 1) echo 'Công khai';
                                                         elseif ($post['role'] == 2) echo 'Đã chia sẻ với: Bạn bè của ' . $post['displayName'];
@@ -190,15 +178,14 @@ $page = 'index';
                             $numOfComment = $numOfComment > 0 ? $numOfComment . ' bình luận' : ''; ?>
                     <?php if ($post['image'] != NULL) : ?>
                     <figure>
-                        <img src="view-image.php?postId=<?php echo $post['userId'] ?>" alt="<?php echo $post['id'] ?>"
+                        <img src="view-image.php?postId=<?php echo $post['id'] ?>" alt="<?php echo $post['id'] ?>"
                             class="img-fluid w-100">
                     </figure>
                     <?php endif; ?>
-                    <div class="d-flex justify-content-between">
-                        <div>
+                    <div class="react-info d-flex justify-content-between">
+                        <div class="like-count">
                             <span>
-                                <i class="fa fa-thumbs-o-up"></i>
-
+                                <i class="fa fa-thumbs-up"></i>
                                 <?php echo countLike($post['id']); ?> lượt thích
                             </span>
                         </div>
@@ -209,23 +196,16 @@ $page = 'index';
                 </div>
                 <div class="card-footer bg-transparent">
                     <div class="d-flex react-group">
-                        <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
-                        <form method="POST" class="hover-secondary w-100 text-center">
-                            <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
-                            <input type="hidden" name="postLikeId" value="<?php echo $post['id']; ?>">
-                            <button type="submit" class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
+                        <div class="hover-secondary w-100 text-center">
+                            <p data-currentuserid="<?php echo $currentUser['id']; ?>"
+                                data-postid="<?php echo $post['id']; ?>" class="btn-like px-3 py-2">
+                                <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
                                 <i class="fa fa-thumbs-o-up"></i> Thích
-                            </button>
-                        </form>
-                        <?php else: ?>
-                        <form method="POST" class="hover-secondary w-100 text-center">
-                            <input type="hidden" name="currentUserId" value="<?php echo $currentUser['id']; ?>">
-                            <input type="hidden" name="postUnlikeId" value="<?php echo $post['id']; ?>">
-                            <button type="submit" class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
+                                <?php else: ?>
                                 <i class="fa fa-thumbs-up"></i> Bỏ thích
-                            </button>
-                        </form>
-                        <?php endif; ?>
+                                <?php endif; ?>
+                            </p>
+                        </div>
                         <div class="hover-secondary w-100 text-center">
                             <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận</p>
                         </div>
@@ -271,6 +251,14 @@ $page = 'index';
         </div>
     </div>
     <?php endforeach; ?>
+    <?php if (count($newFeeds) != 0): ?>
+    <div class="load-more text-center pt-5">
+        <form method="GET">
+            <input type="hidden" value="<?php echo $page; ?>" name="page" />
+            <button type="submit" class="btn btn-outline-success">Tải thêm trạng thái</button>
+        </form>
+    </div>
+    <?php endif; ?>
 </div>
 
 <script src="./assets/js/change-privacy.js"></script>
