@@ -28,7 +28,7 @@
                 
                 <!-- search box -->
                 <div class="search-box">
-                    <form action="search.php" method="POST">
+                    <form action="search.php" method="GET">
                         <div class="content-input">
                             <div class="row">
                                 <div class="input-group">
