@@ -78,6 +78,15 @@ function createUser($displayName, $email, $password, $avatar, $background)
   return $id;
 }
 
+function updateLoginTime($userId)
+{
+  global $db;
+  date_default_timezone_set("Asia/Ho_Chi_Minh");
+  $dateNow = date("Y-m-d H:i:s");
+  $stmt = $db->prepare("UPDATE users SET lastLogin=? WHERE id=?");
+  return $stmt->execute(array($dateNow, $userId));
+}
+
 function generateRandomString($length = 10)
 {
   $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';

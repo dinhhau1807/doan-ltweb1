@@ -37,12 +37,15 @@ if ($currentUser) {
     $error = "";
 
     if ($user) {
-      if (password_verify($password, $user['password'])) {
+      if ($user['status'] == 1 && password_verify($password, $user['password'])) {
+        updateLoginTime($user['id']);
         $_SESSION['userId'] = $user['id'];
         header('Location: index.php');
         exit();
-      } else {
+      } else if ($user['status'] == 1) {
         $error .= $errorPattern . "Nhập mật khẩu không đúng!</div>";
+      } else {
+        $error .= $errorPattern . "Tài khoản chưa được kích hoạt!</div>";
       }
     } else {
       $error .= $errorPattern . "Email đăng nhập không tồn tại!</div>";
