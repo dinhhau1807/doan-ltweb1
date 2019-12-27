@@ -25,7 +25,7 @@ if (isset($_GET['id'])) {
 
 $isFollowing  = getFriendShip($currentUser['id'], $user['id']);
 $isFollower = getFriendShip($user['id'], $currentUser['id']);
-$allFriends = getFriendNotFollowing($userId2);
+$allFriends = getFriends($userId2);
 ?>
 
 <?php include 'header.php' ?>
@@ -418,10 +418,10 @@ $allFriends = getFriendNotFollowing($userId2);
                                         alt="<?php echo $post['id'] ?>" class="img-fluid w-100">
                                 </figure>
                                 <?php endif; ?>
-                                <div class="d-flex justify-content-between">
-                                    <div>
+                                <div class="react-info d-flex justify-content-between">
+                                    <div class="like-count">
                                         <span>
-                                            <i class="text-success fa fa-thumbs-o-up"></i>
+                                            <i class="fa fa-thumbs-up"></i>
                                             <?php echo countLike($post['id']); ?> lượt thích
                                         </span>
                                     </div>
@@ -432,30 +432,18 @@ $allFriends = getFriendNotFollowing($userId2);
                             </div>
                             <div class="card-footer bg-transparent">
                                 <div class="d-flex react-group">
-                                    <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
-                                    <form method="POST" class="hover-secondary w-100 text-center">
-                                        <input type="hidden" name="currentUserId"
-                                            value="<?php echo $currentUser['id']; ?>">
-                                        <input type="hidden" name="postLikeId" value="<?php echo $post['id']; ?>">
-                                        <button type="submit"
-                                            class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
-                                            <i class="fa fa-thumbs-o-up"></i> Thích
-                                        </button>
-                                    </form>
-                                    <?php else: ?>
-                                    <form method="POST" class="hover-secondary w-100 text-center">
-                                        <input type="hidden" name="currentUserId"
-                                            value="<?php echo $currentUser['id']; ?>">
-                                        <input type="hidden" name="postUnlikeId" value="<?php echo $post['id']; ?>">
-                                        <button type="submit"
-                                            class="hover-secondary w-100 text-center btn btn-like px-3 py-2">
-                                            <i class="fa fa-thumbs-up"></i> Bỏ thích
-                                        </button>
-                                    </form>
-                                    <?php endif; ?>
                                     <div class="hover-secondary w-100 text-center">
-                                        <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận
+                                        <p data-currentuserid="<?php echo $currentUser['id']; ?>"
+                                            data-postid="<?php echo $post['id']; ?>" class="btn-like px-3 py-2">
+                                            <?php if (!wasLike($currentUser['id'], $post['id'])): ?>
+                                            <i class="fa fa-thumbs-o-up"></i> Thích
+                                            <?php else: ?>
+                                            <i class="fa fa-thumbs-up"></i> Bỏ thích
+                                            <?php endif; ?>
                                         </p>
+                                    </div>
+                                    <div class="hover-secondary w-100 text-center">
+                                        <p class="btn-comment px-3 py-2"><i class="fa fa-comment"></i> Bình luận</p>
                                     </div>
                                 </div>
                                 <!-- SHOW COMMENT POST -->
