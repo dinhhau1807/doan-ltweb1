@@ -1,6 +1,5 @@
 <?php
 require_once 'init.php';
-$page = 'index';
 ?>
 <?php include 'header.php' ?>
 <?php if (!$currentUser) : ?>

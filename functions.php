@@ -11,17 +11,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-$enableSendNotification = false;
-
-function detectPage()
-{
-  $uri = $_SERVER['REQUEST_URI'];
-  $parts = explode('/', $uri);
-  $fileName = $parts[2];
-  $parts = explode('.', $fileName);
-  $page = $parts[0];
-  return $page;
-}
+$enableSendNotification = true;
 
 function findUserByEmail($email)
 {

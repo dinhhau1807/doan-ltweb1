@@ -12,9 +12,6 @@ error_reporting(E_ALL);
 // Start session
 session_start();
 
-// Detect page
-$page = detectPage();
-
 //limit item per page
 $limitPaging = 5;
 $page = 1;
