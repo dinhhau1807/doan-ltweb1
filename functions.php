@@ -456,8 +456,8 @@ function sendMessage($userId1, $userId2, $content)
 {
   global $db, $enableSendNotification, $BASE_URL;
 
-  $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ?");
-  $stmt->execute(array($userId1));
+  $stmt = $db->prepare("SELECT * FROM messages WHERE fromUserId = ? AND toUserId = ?");
+  $stmt->execute(array($userId1, $userId2));
   $check = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   date_default_timezone_set("Asia/Ho_Chi_Minh");
