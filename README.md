@@ -3,7 +3,7 @@
 - Lớp: **CD2017/1**
 - Học kỳ: **1 (2019-2020)**
 - Giảng viên: **Đỗ Nguyên Kha**
-- Thời gian & Phòng: **T4-6   P. E403**
+- Thời gian & Phòng: **Thứ 4, T4-6, P. E403**
 ## Thông tin nhóm
 
 |STT|MSSV    |Họ tên      			   |
